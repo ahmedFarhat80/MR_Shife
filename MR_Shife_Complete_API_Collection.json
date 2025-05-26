@@ -1,0 +1,2140 @@
+{
+	"info": {
+		"_postman_id": "mr-shife-complete-collection-2025",
+		"name": "🍽️ MR Shife API - Complete Collection",
+		"description": "شامل ومنظم - مجموعة API كاملة لمشروع مستر شيف\n\n📋 **المحتويات:**\n• 🔐 **Authentication** - تسجيل الدخول بـ OTP\n• 👥 **Customer APIs** - تسجيل وإدارة العملاء\n• 🏪 **Merchant APIs** - تسجيل وإدارة التجار\n• 🖼️ **Image Management** - إدارة الصور\n• 💳 **Subscriptions** - إدارة الاشتراكات\n\n🎯 **المميزات:**\n• إدارة التوكن التلقائية\n• دعم اللغتين العربية والإنجليزية\n• تنظيم شامل للـ endpoints\n• اختبار شامل لجميع الوظائف",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🔐 Authentication (Passwordless)",
+			"description": "نظام المصادقة بدون كلمة مرور باستخدام OTP",
+			"item": [
+				{
+					"name": "🏪 Merchant Login",
+					"item": [
+						{
+							"name": "Send Login OTP",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{merchant_phone}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/auth/merchant/send-login-otp",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"auth",
+										"merchant",
+										"send-login-otp"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.verification_code) {",
+											"        pm.environment.set('merchant_otp', responseJson.data.verification_code);",
+											"        console.log('Merchant OTP saved:', responseJson.data.verification_code);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							]
+						},
+						{
+							"name": "Verify Login OTP",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{merchant_phone}}\",\n    \"code\": \"{{merchant_otp}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/auth/merchant/verify-login-otp",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"auth",
+										"merchant",
+										"verify-login-otp"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.token) {",
+											"        pm.environment.set('merchant_token', responseJson.data.token);",
+											"        pm.environment.set('auth_token', responseJson.data.token);",
+											"        console.log('Merchant token saved');",
+											"    }",
+											"    if (responseJson.data && responseJson.data.user && responseJson.data.user.id) {",
+											"        pm.environment.set('merchant_id', responseJson.data.user.id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "👥 Customer Login",
+					"item": [
+						{
+							"name": "Send Login OTP",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{customer_phone}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/auth/customer/send-login-otp",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"auth",
+										"customer",
+										"send-login-otp"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.verification_code) {",
+											"        pm.environment.set('customer_otp', responseJson.data.verification_code);",
+											"        console.log('Customer OTP saved:', responseJson.data.verification_code);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							]
+						},
+						{
+							"name": "Verify Login OTP",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{customer_phone}}\",\n    \"code\": \"{{customer_otp}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/auth/customer/verify-login-otp",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"auth",
+										"customer",
+										"verify-login-otp"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.token) {",
+											"        pm.environment.set('customer_token', responseJson.data.token);",
+											"        pm.environment.set('auth_token', responseJson.data.token);",
+											"        console.log('Customer token saved');",
+											"    }",
+											"    if (responseJson.data && responseJson.data.user && responseJson.data.user.id) {",
+											"        pm.environment.set('customer_id', responseJson.data.user.id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "🔍 Common Auth",
+					"item": [
+						{
+							"name": "Get Current User Info",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/auth/me",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"auth",
+										"me"
+									]
+								}
+							}
+						},
+						{
+							"name": "Logout",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{auth_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/auth/logout",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"auth",
+										"logout"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    pm.environment.unset('auth_token');",
+											"    pm.environment.unset('customer_token');",
+											"    pm.environment.unset('merchant_token');",
+											"    console.log('Tokens cleared after logout');",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "👥 Customer APIs",
+			"description": "جميع APIs الخاصة بالعملاء - التسجيل، تسجيل الدخول، إدارة الملف الشخصي، والتطبيق",
+			"item": [
+				{
+					"name": "🔐 Customer Registration & Auth",
+					"description": "تسجيل العملاء الجدد والمصادقة",
+					"item": [
+						{
+							"name": "Register Customer",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name_en\": \"John Doe\",\n    \"name_ar\": \"جون دو\",\n    \"phone_number\": \"{{customer_phone}}\",\n    \"email\": \"customer@example.com\",\n    \"preferred_language\": \"ar\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/auth/register",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"auth",
+										"register"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200 || pm.response.code === 201) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.token) {",
+											"        pm.environment.set('customer_token', responseJson.data.token);",
+											"        pm.environment.set('auth_token', responseJson.data.token);",
+											"        console.log('Customer registration token saved');",
+											"    }",
+											"    if (responseJson.data && responseJson.data.user && responseJson.data.user.id) {",
+											"        pm.environment.set('customer_id', responseJson.data.user.id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							]
+						},
+						{
+							"name": "Send Phone Verification",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{customer_phone}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/auth/send-phone-verification",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"auth",
+										"send-phone-verification"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.verification_code) {",
+											"        pm.environment.set('customer_otp', responseJson.data.verification_code);",
+											"        console.log('Customer verification OTP saved:', responseJson.data.verification_code);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							]
+						},
+						{
+							"name": "Verify Phone",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{customer_phone}}\",\n    \"code\": \"{{customer_otp}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/auth/verify-phone",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"auth",
+										"verify-phone"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.token) {",
+											"        pm.environment.set('customer_token', responseJson.data.token);",
+											"        pm.environment.set('auth_token', responseJson.data.token);",
+											"        console.log('Customer phone verified, token saved');",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							]
+						},
+						{
+							"name": "Login with OTP (Send)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{customer_phone}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/auth/login-with-otp",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"auth",
+										"login-with-otp"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.verification_code) {",
+											"        pm.environment.set('customer_otp', responseJson.data.verification_code);",
+											"        console.log('Customer login OTP saved:', responseJson.data.verification_code);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							]
+						},
+						{
+							"name": "Login with OTP (Verify)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{customer_phone}}\",\n    \"code\": \"{{customer_otp}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/auth/verify-login-otp",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"auth",
+										"verify-login-otp"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.token) {",
+											"        pm.environment.set('customer_token', responseJson.data.token);",
+											"        pm.environment.set('auth_token', responseJson.data.token);",
+											"        console.log('Customer OTP login successful, token saved');",
+											"    }",
+											"    if (responseJson.data && responseJson.data.user && responseJson.data.user.id) {",
+											"        pm.environment.set('customer_id', responseJson.data.user.id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "👤 Customer Profile Management",
+					"description": "إدارة الملف الشخصي للعملاء",
+					"item": [
+						{
+							"name": "Get Profile",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/auth/profile",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"auth",
+										"profile"
+									]
+								}
+							}
+						},
+						{
+							"name": "Update Profile",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name_en\": \"John Updated\",\n    \"name_ar\": \"جون محدث\",\n    \"email\": \"john.updated@example.com\",\n    \"preferred_language\": \"ar\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/auth/profile",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"auth",
+										"profile"
+									]
+								}
+							}
+						},
+						{
+							"name": "Change Password",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"current_password\": \"Password123!\",\n    \"new_password\": \"NewPassword123!\",\n    \"new_password_confirmation\": \"NewPassword123!\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/auth/change-password",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"auth",
+										"change-password"
+									]
+								}
+							}
+						},
+						{
+							"name": "Logout",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/auth/logout",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"auth",
+										"logout"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    pm.environment.unset('customer_token');",
+											"    console.log('Customer token cleared after logout');",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							]
+						},
+						{
+							"name": "Delete Account",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"password\": \"Password123!\",\n    \"confirmation\": \"DELETE\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/auth/delete-account",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"auth",
+										"delete-account"
+									]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "📱 Customer App Features",
+					"description": "وظائف التطبيق للعملاء - تصفح المطاعم والطلبات",
+					"item": [
+						{
+							"name": "Browse Restaurants",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/app/restaurants?page=1&per_page=10",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"app",
+										"restaurants"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "per_page",
+											"value": "10"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Search",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/app/search?q=pizza&type=restaurant",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"app",
+										"search"
+									],
+									"query": [
+										{
+											"key": "q",
+											"value": "pizza"
+										},
+										{
+											"key": "type",
+											"value": "restaurant"
+										}
+									]
+								}
+							}
+						},
+						{
+							"name": "Get Categories",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/app/categories",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"app",
+										"categories"
+									]
+								}
+							}
+						},
+						{
+							"name": "Get Restaurant Details",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/app/restaurants/1",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"app",
+										"restaurants",
+										"1"
+									]
+								}
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🏪 Merchant APIs",
+			"description": "جميع APIs الخاصة بالتجار - التسجيل متعدد الخطوات، إدارة الملف الشخصي، والعمليات التجارية",
+			"item": [
+				{
+					"name": "📝 Merchant Registration (6 Steps)",
+					"description": "تسجيل التجار الجديد بـ 6 خطوات",
+					"item": [
+						{
+							"name": "Step 1: Basic Information",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name_en\": \"Ahmed Restaurant\",\n    \"name_ar\": \"مطعم أحمد\",\n    \"phone_number\": \"{{merchant_phone}}\",\n    \"email\": \"merchant@example.com\",\n    \"preferred_language\": \"ar\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/registration/basic-info",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"registration",
+										"basic-info"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200 || pm.response.code === 201) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.token) {",
+											"        pm.environment.set('merchant_token', responseJson.data.token);",
+											"        pm.environment.set('auth_token', responseJson.data.token);",
+											"        console.log('Merchant registration token saved');",
+											"    }",
+											"    if (responseJson.data && responseJson.data.merchant && responseJson.data.merchant.id) {",
+											"        pm.environment.set('merchant_id', responseJson.data.merchant.id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							]
+						},
+						{
+							"name": "Step 2: Send Phone Verification",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{merchant_phone}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/registration/send-phone-verification",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"registration",
+										"send-phone-verification"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.verification_code) {",
+											"        pm.environment.set('merchant_otp', responseJson.data.verification_code);",
+											"        console.log('Merchant verification OTP saved:', responseJson.data.verification_code);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							]
+						},
+						{
+							"name": "Step 2: Verify Phone",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{merchant_phone}}\",\n    \"code\": \"{{merchant_otp}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/registration/verify-phone",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"registration",
+										"verify-phone"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.token) {",
+											"        pm.environment.set('merchant_token', responseJson.data.token);",
+											"        pm.environment.set('auth_token', responseJson.data.token);",
+											"        console.log('Merchant phone verified, token saved');",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							]
+						},
+						{
+							"name": "Step 3: Get Subscription Plans",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/merchant/registration/subscription-plans",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"registration",
+										"subscription-plans"
+									]
+								}
+							}
+						},
+						{
+							"name": "Step 3: Choose Subscription",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{merchant_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"subscription_plan_id\": 2,\n    \"payment_method\": \"card\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/registration/subscription",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"registration",
+										"subscription"
+									]
+								}
+							}
+						},
+						{
+							"name": "Step 3: Process Payment",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{merchant_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"payment_method\": \"card\",\n    \"card_number\": \"4111111111111111\",\n    \"expiry_month\": \"12\",\n    \"expiry_year\": \"2025\",\n    \"cvv\": \"123\",\n    \"cardholder_name\": \"Ahmed Restaurant Owner\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/registration/payment",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"registration",
+										"payment"
+									]
+								}
+							}
+						},
+						{
+							"name": "Step 4: Business Information",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{merchant_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "business_name_en",
+											"value": "Ahmed's Restaurant",
+											"type": "text"
+										},
+										{
+											"key": "business_name_ar",
+											"value": "مطعم أحمد",
+											"type": "text"
+										},
+										{
+											"key": "business_type",
+											"value": "restaurant",
+											"type": "text"
+										},
+										{
+											"key": "business_address_en",
+											"value": "123 Main Street, Cairo",
+											"type": "text"
+										},
+										{
+											"key": "business_address_ar",
+											"value": "123 شارع الرئيسي، القاهرة",
+											"type": "text"
+										},
+										{
+											"key": "commercial_registration_number",
+											"value": "CR123456789",
+											"type": "text"
+										},
+										{
+											"key": "work_permit",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "id_or_passport",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "health_certificate",
+											"type": "file",
+											"src": []
+										}
+									]
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/registration/business-info",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"registration",
+										"business-info"
+									]
+								}
+							}
+						},
+						{
+							"name": "Step 5: Business Profile",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{merchant_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "business_logo",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "business_description_en",
+											"value": "Traditional Egyptian cuisine with authentic flavors",
+											"type": "text"
+										},
+										{
+											"key": "business_description_ar",
+											"value": "مأكولات مصرية تقليدية بنكهات أصيلة",
+											"type": "text"
+										},
+										{
+											"key": "business_hours[monday][open]",
+											"value": "09:00",
+											"type": "text"
+										},
+										{
+											"key": "business_hours[monday][close]",
+											"value": "22:00",
+											"type": "text"
+										},
+										{
+											"key": "business_hours[tuesday][open]",
+											"value": "09:00",
+											"type": "text"
+										},
+										{
+											"key": "business_hours[tuesday][close]",
+											"value": "22:00",
+											"type": "text"
+										},
+										{
+											"key": "business_hours[wednesday][open]",
+											"value": "09:00",
+											"type": "text"
+										},
+										{
+											"key": "business_hours[wednesday][close]",
+											"value": "22:00",
+											"type": "text"
+										},
+										{
+											"key": "business_hours[thursday][open]",
+											"value": "09:00",
+											"type": "text"
+										},
+										{
+											"key": "business_hours[thursday][close]",
+											"value": "22:00",
+											"type": "text"
+										},
+										{
+											"key": "business_hours[friday][open]",
+											"value": "09:00",
+											"type": "text"
+										},
+										{
+											"key": "business_hours[friday][close]",
+											"value": "23:00",
+											"type": "text"
+										},
+										{
+											"key": "business_hours[saturday][open]",
+											"value": "09:00",
+											"type": "text"
+										},
+										{
+											"key": "business_hours[saturday][close]",
+											"value": "23:00",
+											"type": "text"
+										},
+										{
+											"key": "business_hours[sunday][open]",
+											"value": "10:00",
+											"type": "text"
+										},
+										{
+											"key": "business_hours[sunday][close]",
+											"value": "21:00",
+											"type": "text"
+										},
+										{
+											"key": "business_phone",
+											"value": "{{merchant_phone}}",
+											"type": "text"
+										},
+										{
+											"key": "business_email",
+											"value": "info@ahmed-restaurant.com",
+											"type": "text"
+										},
+										{
+											"key": "social_media[facebook]",
+											"value": "https://facebook.com/ahmed-restaurant",
+											"type": "text"
+										},
+										{
+											"key": "social_media[instagram]",
+											"value": "https://instagram.com/ahmed_restaurant",
+											"type": "text"
+										},
+										{
+											"key": "social_media[twitter]",
+											"value": "https://twitter.com/ahmed_restaurant",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/registration/business-profile",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"registration",
+										"business-profile"
+									]
+								}
+							}
+						},
+						{
+							"name": "Step 6: Location Information",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{merchant_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"location_latitude\": 30.0444,\n    \"location_longitude\": 31.2357,\n    \"location_address_en\": \"123 Main Street, Zamalek, Cairo\",\n    \"location_address_ar\": \"123 شارع الرئيسي، الزمالك، القاهرة\",\n    \"location_city\": \"Cairo\",\n    \"location_area\": \"Zamalek\",\n    \"location_building\": \"Building 123\",\n    \"location_floor\": \"Ground Floor\",\n    \"location_notes\": \"Near the main square, easy to find\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/registration/location",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"registration",
+										"location"
+									]
+								}
+							}
+						},
+						{
+							"name": "Get Registration Status",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{merchant_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/merchant/registration/status",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"registration",
+										"status"
+									]
+								}
+							}
+						}
+					]
+				},
+				{
+					"name": "👤 Merchant Profile Management",
+					"description": "إدارة الملف الشخصي للتجار",
+					"item": [
+						{
+							"name": "Get Profile",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{merchant_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/merchant/profile",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"profile"
+									]
+								}
+							}
+						},
+						{
+							"name": "Update Basic Info",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{merchant_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name_en\": \"Ahmed's Updated Restaurant\",\n    \"name_ar\": \"مطعم أحمد المحدث\",\n    \"email\": \"ahmed.updated@example.com\",\n    \"preferred_language\": \"ar\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/profile/basic-info",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"profile",
+										"basic-info"
+									]
+								}
+							}
+						},
+						{
+							"name": "Update Business Info",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{merchant_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "business_name_en",
+											"value": "Ahmed's Updated Restaurant",
+											"type": "text"
+										},
+										{
+											"key": "business_name_ar",
+											"value": "مطعم أحمد المحدث",
+											"type": "text"
+										},
+										{
+											"key": "business_address_en",
+											"value": "456 Updated Street, Cairo",
+											"type": "text"
+										},
+										{
+											"key": "business_address_ar",
+											"value": "456 شارع محدث، القاهرة",
+											"type": "text"
+										},
+										{
+											"key": "business_type",
+											"value": "restaurant",
+											"type": "text"
+										},
+										{
+											"key": "commercial_registration_number",
+											"value": "CR987654321",
+											"type": "text"
+										},
+										{
+											"key": "work_permit",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "id_or_passport",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "health_certificate",
+											"type": "file",
+											"src": []
+										}
+									]
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/profile/business-info",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"profile",
+										"business-info"
+									]
+								}
+							}
+						},
+						{
+							"name": "Update Business Profile",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{merchant_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "business_logo",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "business_description_en",
+											"value": "Updated traditional Egyptian cuisine with modern touch",
+											"type": "text"
+										},
+										{
+											"key": "business_description_ar",
+											"value": "مأكولات مصرية تقليدية محدثة بلمسة عصرية",
+											"type": "text"
+										},
+										{
+											"key": "business_hours[monday][open]",
+											"value": "08:00",
+											"type": "text"
+										},
+										{
+											"key": "business_hours[monday][close]",
+											"value": "23:00",
+											"type": "text"
+										},
+										{
+											"key": "business_phone",
+											"value": "{{merchant_phone}}",
+											"type": "text"
+										},
+										{
+											"key": "business_email",
+											"value": "info@ahmed-restaurant-updated.com",
+											"type": "text"
+										},
+										{
+											"key": "social_media[facebook]",
+											"value": "https://facebook.com/ahmed-restaurant-updated",
+											"type": "text"
+										},
+										{
+											"key": "social_media[instagram]",
+											"value": "https://instagram.com/ahmed_restaurant_updated",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/profile/business-profile",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"profile",
+										"business-profile"
+									]
+								}
+							}
+						},
+						{
+							"name": "Update Location",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{merchant_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"location_latitude\": 30.0626,\n    \"location_longitude\": 31.2497,\n    \"location_address_en\": \"456 Updated Street, Maadi, Cairo\",\n    \"location_address_ar\": \"456 شارع محدث، المعادي، القاهرة\",\n    \"location_city\": \"Cairo\",\n    \"location_area\": \"Maadi\",\n    \"location_building\": \"Building 456\",\n    \"location_floor\": \"First Floor\",\n    \"location_notes\": \"Updated location near the metro station\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/profile/location",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"profile",
+										"location"
+									]
+								}
+							}
+						},
+						{
+							"name": "Logout",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{merchant_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/auth/logout",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"auth",
+										"logout"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    pm.environment.unset('merchant_token');",
+											"    console.log('Merchant token cleared after logout');",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🖼️ Image Management",
+			"description": "إدارة الصور - رفع وحذف الصور للمنتجات والملفات الشخصية",
+			"item": [
+				{
+					"name": "Upload Single Image",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "X-Language",
+								"value": "{{language}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "type",
+									"value": "product",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{Local_MR}}/images/upload",
+							"host": [
+								"{{Local_MR}}"
+							],
+							"path": [
+								"images",
+								"upload"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200 || pm.response.code === 201) {",
+									"    const responseJson = pm.response.json();",
+									"    if (responseJson.data && responseJson.data.image_id) {",
+									"        pm.environment.set('uploaded_image_id', responseJson.data.image_id);",
+									"        console.log('Image uploaded, ID saved:', responseJson.data.image_id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					]
+				},
+				{
+					"name": "Upload Multiple Images",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "X-Language",
+								"value": "{{language}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "images[]",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "images[]",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "type",
+									"value": "gallery",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{Local_MR}}/images/upload-multiple",
+							"host": [
+								"{{Local_MR}}"
+							],
+							"path": [
+								"images",
+								"upload-multiple"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Image",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "X-Language",
+								"value": "{{language}}"
+							}
+						],
+						"url": {
+							"raw": "{{Local_MR}}/images/{{uploaded_image_id}}",
+							"host": [
+								"{{Local_MR}}"
+							],
+							"path": [
+								"images",
+								"{{uploaded_image_id}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Image Variants",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "X-Language",
+								"value": "{{language}}"
+							}
+						],
+						"url": {
+							"raw": "{{Local_MR}}/images/{{uploaded_image_id}}/variants",
+							"host": [
+								"{{Local_MR}}"
+							],
+							"path": [
+								"images",
+								"{{uploaded_image_id}}",
+								"variants"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Image",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "X-Language",
+								"value": "{{language}}"
+							}
+						],
+						"url": {
+							"raw": "{{Local_MR}}/images/{{uploaded_image_id}}",
+							"host": [
+								"{{Local_MR}}"
+							],
+							"path": [
+								"images",
+								"{{uploaded_image_id}}"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "Local_MR",
+			"value": "http://localhost:8000/api",
+			"type": "string"
+		},
+		{
+			"key": "language",
+			"value": "ar",
+			"type": "string"
+		},
+		{
+			"key": "customer_phone",
+			"value": "+201234567890",
+			"type": "string"
+		},
+		{
+			"key": "merchant_phone",
+			"value": "+201987654321",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "customer_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "merchant_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "customer_otp",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "merchant_otp",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "customer_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "merchant_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "uploaded_image_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
