@@ -325,6 +325,27 @@ class CustomerAuthController extends Controller
             'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'date_of_birth' => 'nullable|date|before:today',
             'gender' => 'nullable|string|in:male,female,other',
+            'addresses' => 'nullable|array',
+            'addresses.*.address_line' => 'required_with:addresses|string|max:255',
+            'addresses.*.city' => 'required_with:addresses|string|max:100',
+            'addresses.*.area' => 'nullable|string|max:100',
+            'addresses.*.building' => 'nullable|string|max:100',
+            'addresses.*.floor' => 'nullable|string|max:50',
+            'addresses.*.apartment' => 'nullable|string|max:50',
+            'addresses.*.latitude' => 'nullable|numeric|between:-90,90',
+            'addresses.*.longitude' => 'nullable|numeric|between:-180,180',
+            'addresses.*.notes' => 'nullable|string|max:500',
+            'addresses.*.is_default' => 'nullable|boolean',
+            'default_address' => 'nullable|array',
+            'default_address.address_line' => 'required_with:default_address|string|max:255',
+            'default_address.city' => 'required_with:default_address|string|max:100',
+            'default_address.area' => 'nullable|string|max:100',
+            'default_address.building' => 'nullable|string|max:100',
+            'default_address.floor' => 'nullable|string|max:50',
+            'default_address.apartment' => 'nullable|string|max:50',
+            'default_address.latitude' => 'nullable|numeric|between:-90,90',
+            'default_address.longitude' => 'nullable|numeric|between:-180,180',
+            'default_address.notes' => 'nullable|string|max:500',
             'dietary_preferences' => 'nullable|array',
             'favorite_cuisines' => 'nullable|array',
             'notifications_enabled' => 'nullable|boolean',
@@ -367,8 +388,9 @@ class CustomerAuthController extends Controller
             }
 
             // Handle other fields
-            $fields = ['email', 'date_of_birth', 'gender', 'dietary_preferences', 'favorite_cuisines',
-                      'notifications_enabled', 'sms_notifications', 'email_notifications'];
+            $fields = ['email', 'date_of_birth', 'gender', 'addresses', 'default_address',
+                      'dietary_preferences', 'favorite_cuisines', 'notifications_enabled',
+                      'sms_notifications', 'email_notifications'];
 
             foreach ($fields as $field) {
                 if ($request->has($field)) {

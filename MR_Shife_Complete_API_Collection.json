@@ -494,116 +494,6 @@
 									}
 								}
 							]
-						},
-						{
-							"name": "Login with OTP (Send)",
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "application/json"
-									},
-									{
-										"key": "X-Language",
-										"value": "{{language}}"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"phone_number\": \"{{customer_phone}}\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{Local_MR}}/customer/auth/login-with-otp",
-									"host": [
-										"{{Local_MR}}"
-									],
-									"path": [
-										"customer",
-										"auth",
-										"login-with-otp"
-									]
-								}
-							},
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"if (pm.response.code === 200) {",
-											"    const responseJson = pm.response.json();",
-											"    if (responseJson.data && responseJson.data.verification_code) {",
-											"        pm.environment.set('customer_otp', responseJson.data.verification_code);",
-											"        console.log('Customer login OTP saved:', responseJson.data.verification_code);",
-											"    }",
-											"}"
-										],
-										"type": "text/javascript"
-									}
-								}
-							]
-						},
-						{
-							"name": "Login with OTP (Verify)",
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "application/json"
-									},
-									{
-										"key": "X-Language",
-										"value": "{{language}}"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"phone_number\": \"{{customer_phone}}\",\n    \"code\": \"{{customer_otp}}\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{Local_MR}}/customer/auth/verify-login-otp",
-									"host": [
-										"{{Local_MR}}"
-									],
-									"path": [
-										"customer",
-										"auth",
-										"verify-login-otp"
-									]
-								}
-							},
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"if (pm.response.code === 200) {",
-											"    const responseJson = pm.response.json();",
-											"    if (responseJson.data && responseJson.data.token) {",
-											"        pm.environment.set('customer_token', responseJson.data.token);",
-											"        pm.environment.set('auth_token', responseJson.data.token);",
-											"        console.log('Customer OTP login successful, token saved');",
-											"    }",
-											"    if (responseJson.data && responseJson.data.user && responseJson.data.user.id) {",
-											"        pm.environment.set('customer_id', responseJson.data.user.id);",
-											"    }",
-											"}"
-										],
-										"type": "text/javascript"
-									}
-								}
-							]
 						}
 					]
 				},
@@ -643,7 +533,7 @@
 							}
 						},
 						{
-							"name": "Update Profile",
+							"name": "Update Profile (JSON)",
 							"request": {
 								"method": "PUT",
 								"header": [
@@ -662,7 +552,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name_en\": \"John Updated\",\n    \"name_ar\": \"جون محدث\",\n    \"email\": \"john.updated@example.com\",\n    \"preferred_language\": \"ar\"\n}",
+									"raw": "{\n    \"name_en\": \"John Updated\",\n    \"name_ar\": \"جون محدث\",\n    \"email\": \"john.updated@example.com\",\n    \"date_of_birth\": \"1990-05-15\",\n    \"gender\": \"male\",\n    \"dietary_preferences\": [\"vegetarian\", \"gluten_free\"],\n    \"favorite_cuisines\": [\"italian\", \"arabic\", \"indian\"],\n    \"notifications_enabled\": true,\n    \"sms_notifications\": true,\n    \"email_notifications\": false\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -683,9 +573,115 @@
 							}
 						},
 						{
-							"name": "Change Password",
+							"name": "Update Profile with Avatar (FormData)",
 							"request": {
-								"method": "POST",
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name_en",
+											"value": "John Updated",
+											"type": "text"
+										},
+										{
+											"key": "name_ar",
+											"value": "جون محدث",
+											"type": "text"
+										},
+										{
+											"key": "email",
+											"value": "john.updated@example.com",
+											"type": "text"
+										},
+										{
+											"key": "date_of_birth",
+											"value": "1990-05-15",
+											"type": "text"
+										},
+										{
+											"key": "gender",
+											"value": "male",
+											"type": "text"
+										},
+										{
+											"key": "dietary_preferences[]",
+											"value": "vegetarian",
+											"type": "text"
+										},
+										{
+											"key": "dietary_preferences[]",
+											"value": "gluten_free",
+											"type": "text"
+										},
+										{
+											"key": "favorite_cuisines[]",
+											"value": "italian",
+											"type": "text"
+										},
+										{
+											"key": "favorite_cuisines[]",
+											"value": "arabic",
+											"type": "text"
+										},
+										{
+											"key": "favorite_cuisines[]",
+											"value": "indian",
+											"type": "text"
+										},
+										{
+											"key": "notifications_enabled",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "sms_notifications",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "email_notifications",
+											"value": "0",
+											"type": "text"
+										},
+										{
+											"key": "avatar",
+											"type": "file",
+											"src": []
+										}
+									]
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/auth/profile",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"auth",
+										"profile"
+									]
+								}
+							}
+						},
+						{
+							"name": "Update Profile with Addresses (JSON)",
+							"request": {
+								"method": "PUT",
 								"header": [
 									{
 										"key": "Accept",
@@ -702,7 +698,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"current_password\": \"Password123!\",\n    \"new_password\": \"NewPassword123!\",\n    \"new_password_confirmation\": \"NewPassword123!\"\n}",
+									"raw": "{\n    \"name_en\": \"John Complete\",\n    \"name_ar\": \"جون كامل\",\n    \"email\": \"john.complete@example.com\",\n    \"date_of_birth\": \"1990-05-15\",\n    \"gender\": \"male\",\n    \"addresses\": [\n        {\n            \"address_line\": \"123 Main Street\",\n            \"city\": \"Riyadh\",\n            \"area\": \"Al Malaz\",\n            \"building\": \"Building A\",\n            \"floor\": \"3rd Floor\",\n            \"apartment\": \"Apt 301\",\n            \"latitude\": 24.7136,\n            \"longitude\": 46.6753,\n            \"notes\": \"Near the main entrance\",\n            \"is_default\": true\n        },\n        {\n            \"address_line\": \"456 Second Street\",\n            \"city\": \"Riyadh\",\n            \"area\": \"Al Olaya\",\n            \"building\": \"Tower B\",\n            \"floor\": \"5th Floor\",\n            \"apartment\": \"Apt 502\",\n            \"latitude\": 24.6877,\n            \"longitude\": 46.7219,\n            \"notes\": \"Office address\",\n            \"is_default\": false\n        }\n    ],\n    \"default_address\": {\n        \"address_line\": \"123 Main Street\",\n        \"city\": \"Riyadh\",\n        \"area\": \"Al Malaz\",\n        \"building\": \"Building A\",\n        \"floor\": \"3rd Floor\",\n        \"apartment\": \"Apt 301\",\n        \"latitude\": 24.7136,\n        \"longitude\": 46.6753,\n        \"notes\": \"Primary delivery address\"\n    },\n    \"dietary_preferences\": [\"vegetarian\", \"gluten_free\", \"dairy_free\"],\n    \"favorite_cuisines\": [\"italian\", \"arabic\", \"indian\", \"chinese\"],\n    \"notifications_enabled\": true,\n    \"sms_notifications\": true,\n    \"email_notifications\": false\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -710,14 +706,14 @@
 									}
 								},
 								"url": {
-									"raw": "{{Local_MR}}/customer/auth/change-password",
+									"raw": "{{Local_MR}}/customer/auth/profile",
 									"host": [
 										"{{Local_MR}}"
 									],
 									"path": [
 										"customer",
 										"auth",
-										"change-password"
+										"profile"
 									]
 								}
 							}
@@ -741,12 +737,11 @@
 									}
 								],
 								"url": {
-									"raw": "{{Local_MR}}/customer/auth/logout",
+									"raw": "{{Local_MR}}/auth/logout",
 									"host": [
 										"{{Local_MR}}"
 									],
 									"path": [
-										"customer",
 										"auth",
 										"logout"
 									]
@@ -787,7 +782,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"password\": \"Password123!\",\n    \"confirmation\": \"DELETE\"\n}",
+									"raw": "{\n    \"confirmation\": \"DELETE\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"

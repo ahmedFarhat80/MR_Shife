@@ -141,6 +141,28 @@ MR_Shife_Environment.postman_environment.json
 - **المصادقة بـ OTP فقط** عبر رقم الهاتف
 - **لا حاجة لتغيير كلمة المرور** لأنها غير موجودة!
 
+### **9. 👤 Customer Profile Management - خيارات متعددة للتحديث**
+- **Get Profile**: `/customer/auth/profile` (GET)
+- **Update Profile (JSON)**: `/customer/auth/profile` (PUT - JSON format للحقول الأساسية)
+- **Update Profile with Avatar (FormData)**: `/customer/auth/profile` (PUT - FormData مع رفع الصورة الشخصية)
+- **Update Profile with Addresses (JSON)**: `/customer/auth/profile` (PUT - ملف شخصي كامل مع العناوين)
+- **Logout**: `/auth/logout` (POST - مشترك لجميع المستخدمين)
+- **Delete Account**: `/customer/auth/delete-account` (DELETE)
+
+#### **الحقول المتاحة للتحديث:**
+- **الأساسية**: `name_en`, `name_ar`, `email`, `date_of_birth`, `gender`
+- **الصورة الشخصية**: `avatar` (ملف صورة - JPG, PNG, max 2MB)
+- **العناوين**: `addresses` (مصفوفة عناوين متعددة), `default_address` (العنوان الافتراضي)
+- **التفضيلات**: `dietary_preferences`, `favorite_cuisines`
+- **الإشعارات**: `notifications_enabled`, `sms_notifications`, `email_notifications`
+
+### **10. تنظيم جديد: مجلد 🔐 Authentication (Passwordless)**
+- **مجلد واحد في المستوى الرئيسي** لجميع عمليات تسجيل الدخول
+- **🔑 Customer Login**: تسجيل دخول العملاء بـ OTP
+- **🏪 Merchant Login**: تسجيل دخول التجار بـ OTP
+- **منفصل عن Registration** لوضوح أكبر في التنظيم
+- **لا يوجد تكرار** - تم حذف المجلد المكرر من داخل Customer APIs
+
 ## 🔒 الأمان
 
 - جميع الـ endpoints المحمية تتطلب `Authorization: Bearer {{token}}`
