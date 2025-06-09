@@ -39,6 +39,7 @@ return new class extends Migration
             $table->boolean('notifications_enabled')->default(true);
             $table->boolean('sms_notifications')->default(true);
             $table->boolean('email_notifications')->default(true);
+            $table->boolean('push_notifications')->default(true);
 
             // Account Status
             $table->enum('status', ['active', 'inactive', 'suspended', 'banned'])->default('active');

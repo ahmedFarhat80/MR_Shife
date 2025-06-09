@@ -40,11 +40,10 @@ class Customer extends Authenticatable
         'gender',
         'addresses',
         'default_address',
-        'dietary_preferences',
-        'favorite_cuisines',
         'notifications_enabled',
         'sms_notifications',
         'email_notifications',
+        'push_notifications',
         'status',
         'last_login_at',
         'last_login_ip',
@@ -84,11 +83,10 @@ class Customer extends Authenticatable
             'date_of_birth' => 'date',
             'addresses' => 'array',
             'default_address' => 'array',
-            'dietary_preferences' => 'array',
-            'favorite_cuisines' => 'array',
             'notifications_enabled' => 'boolean',
             'sms_notifications' => 'boolean',
             'email_notifications' => 'boolean',
+            'push_notifications' => 'boolean',
             'last_login_at' => 'datetime',
             'loyalty_points' => 'integer',
         ];
@@ -148,7 +146,7 @@ class Customer extends Authenticatable
     public function getAverageOrderValueAttribute(): float
     {
         $completedOrdersCount = $this->completed_orders_count;
-        
+
         if ($completedOrdersCount === 0) {
             return 0;
         }
@@ -238,13 +236,14 @@ class Customer extends Authenticatable
     public function getAvatarUrlAttribute(): string
     {
         if ($this->avatar) {
-            return asset('storage/' . $this->avatar);
+            // Use ImageHelper to get the correct URL
+            return \App\Helpers\ImageHelper::getUrl($this->avatar, 'public');
         }
 
         // Generate avatar based on name initials
         $name = $this->getTranslation('name', 'en') ?? $this->getTranslation('name', 'ar') ?? 'Customer';
         $initials = collect(explode(' ', $name))->map(fn($word) => strtoupper(substr($word, 0, 1)))->take(2)->join('');
-        
+
         return "https://ui-avatars.com/api/?name={$initials}&background=random&color=fff&size=200";
     }
 
@@ -270,5 +269,13 @@ class Customer extends Authenticatable
     public function scopeRecentlyActive($query, $days = 30)
     {
         return $query->where('last_login_at', '>=', now()->subDays($days));
+    }
+
+    /**
+     * Get the customer's search history.
+     */
+    public function searchHistory(): HasMany
+    {
+        return $this->hasMany(SearchHistory::class);
     }
 }

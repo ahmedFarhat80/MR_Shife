@@ -322,6 +322,7 @@ class CustomerAuthController extends Controller
             'name_en' => 'nullable|string|max:255',
             'name_ar' => 'nullable|string|max:255',
             'email' => 'nullable|email|unique:customers,email,' . $customer->id,
+            'preferred_language' => 'nullable|string|in:ar,en',
             'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'date_of_birth' => 'nullable|date|before:today',
             'gender' => 'nullable|string|in:male,female,other',
@@ -346,8 +347,6 @@ class CustomerAuthController extends Controller
             'default_address.latitude' => 'nullable|numeric|between:-90,90',
             'default_address.longitude' => 'nullable|numeric|between:-180,180',
             'default_address.notes' => 'nullable|string|max:500',
-            'dietary_preferences' => 'nullable|array',
-            'favorite_cuisines' => 'nullable|array',
             'notifications_enabled' => 'nullable|boolean',
             'sms_notifications' => 'nullable|boolean',
             'email_notifications' => 'nullable|boolean',
@@ -388,9 +387,9 @@ class CustomerAuthController extends Controller
             }
 
             // Handle other fields
-            $fields = ['email', 'date_of_birth', 'gender', 'addresses', 'default_address',
-                      'dietary_preferences', 'favorite_cuisines', 'notifications_enabled',
-                      'sms_notifications', 'email_notifications'];
+            $fields = ['email', 'preferred_language', 'date_of_birth', 'gender', 'addresses',
+                      'default_address', 'notifications_enabled', 'sms_notifications',
+                      'email_notifications'];
 
             foreach ($fields as $field) {
                 if ($request->has($field)) {

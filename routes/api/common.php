@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\MobileApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -147,16 +148,16 @@ Route::prefix('images')->name('api.images.')->middleware(['auth:sanctum'])->grou
     Route::group([], function () {
         // Upload single image
         Route::post('/upload', [App\Http\Controllers\Api\ImageController::class, 'uploadSingle'])->name('upload');
-        
+
         // Upload image with multiple sizes
         Route::post('/upload-with-sizes', [App\Http\Controllers\Api\ImageController::class, 'uploadWithSizes'])->name('upload-with-sizes');
-        
+
         // Delete image
         Route::delete('/delete', [App\Http\Controllers\Api\ImageController::class, 'delete'])->name('delete');
-        
+
         // Get image information
         Route::get('/info', [App\Http\Controllers\Api\ImageController::class, 'getInfo'])->name('info');
-        
+
         // Get image configuration (public)
         Route::get('/config', [App\Http\Controllers\Api\ImageController::class, 'getConfig'])->name('config')->withoutMiddleware(['auth:sanctum']);
     });
@@ -188,4 +189,42 @@ Route::prefix('location')->name('api.location.')->group(function () {
             ]);
         })->name('areas');
     });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Mobile API Routes - Common/Public
+|--------------------------------------------------------------------------
+|
+| These routes are common mobile API endpoints that don't require
+| authentication and provide general app functionality.
+|
+*/
+
+// Home Screen API (Public)
+Route::get('/home', [MobileApiController::class, 'homeScreen'])->name('mobile.home');
+
+// App Configuration APIs (Public)
+Route::prefix('app')->name('mobile.app.')->group(function () {
+    Route::get('/config', [MobileApiController::class, 'getAppConfig'])->name('config');
+    Route::post('/version-check', [MobileApiController::class, 'checkAppVersion'])->name('version-check');
+    Route::get('/features', [MobileApiController::class, 'getFeatureFlags'])->name('features');
+    Route::get('/maintenance', [MobileApiController::class, 'checkMaintenanceMode'])->name('maintenance');
+    Route::post('/feedback', [MobileApiController::class, 'submitFeedback'])->name('feedback');
+    Route::post('/report-issue', [MobileApiController::class, 'reportIssue'])->name('report-issue');
+});
+
+// Location Services APIs (Public)
+Route::prefix('location')->name('mobile.location.')->group(function () {
+    Route::post('/nearby-merchants', [MobileApiController::class, 'getNearbyMerchants'])->name('nearby-merchants');
+    Route::get('/delivery-zones', [MobileApiController::class, 'getDeliveryZones'])->name('delivery-zones');
+    Route::post('/check-delivery', [MobileApiController::class, 'checkDeliveryAvailability'])->name('check-delivery');
+    Route::post('/delivery-fee', [MobileApiController::class, 'calculateDeliveryFee'])->name('delivery-fee');
+});
+
+// Promotions APIs (Public)
+Route::prefix('promotions')->name('mobile.promotions.')->group(function () {
+    Route::get('/active', [MobileApiController::class, 'getActivePromotions'])->name('active');
+    Route::get('/banners', [MobileApiController::class, 'getPromotionalBanners'])->name('banners');
+    Route::post('/validate-coupon', [MobileApiController::class, 'validateCoupon'])->name('validate-coupon');
 });

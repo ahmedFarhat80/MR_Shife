@@ -63,6 +63,7 @@ return new class extends Migration
             $table->enum('registration_step', ['basic_info', 'phone_verification', 'subscription', 'business_info', 'business_profile', 'location', 'completed'])->default('basic_info');
             $table->boolean('is_verified')->default(false);
             $table->boolean('is_approved')->default(false);
+            $table->boolean('is_featured')->default(false);
             $table->string('preferred_language', 2)->default('ar'); // 'ar' or 'en'
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('completed_at')->nullable();

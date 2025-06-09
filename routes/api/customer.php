@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CustomerAuthController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\CustomerApiController;
+use App\Http\Controllers\Api\MobileApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,7 @@ Route::prefix('customer')->middleware(['auth:sanctum'])->group(function () {
         Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
         Route::get('/profile', [CustomerAuthController::class, 'profile'])->name('profile');
         Route::put('/profile', [CustomerAuthController::class, 'updateProfile'])->name('update-profile');
+        Route::post('/profile', [CustomerAuthController::class, 'updateProfile'])->name('update-profile-post'); // Support for form-data uploads
 
         Route::delete('/delete-account', [CustomerAuthController::class, 'deleteAccount'])->name('delete-account');
     });
@@ -54,44 +56,82 @@ Route::prefix('customer')->middleware(['auth:sanctum'])->group(function () {
 
     // Customer app functionality
     Route::prefix('app')->name('api.customer.app.')->group(function () {
-        // Browse and search
-        Route::get('/restaurants', [CustomerApiController::class, 'browseRestaurants'])->name('browse-restaurants');
-        Route::get('/search', [CustomerApiController::class, 'search'])->name('search');
-        Route::get('/categories', [CustomerApiController::class, 'getCategories'])->name('categories');
-        Route::get('/restaurants/{id}', [CustomerApiController::class, 'getRestaurant'])->name('restaurant-details');
+        // Home Screen (Mobile API)
+        Route::get('/home', [MobileApiController::class, 'homeScreen'])->name('home');
 
-        // Orders
-        Route::get('/orders', [CustomerApiController::class, 'getOrders'])->name('orders');
-        Route::post('/orders', [CustomerApiController::class, 'placeOrder'])->name('place-order');
-        Route::get('/orders/{id}', [CustomerApiController::class, 'getOrder'])->name('order-details');
-        Route::post('/orders/{id}/cancel', [CustomerApiController::class, 'cancelOrder'])->name('cancel-order');
+        // Browse and search (Mobile API)
+        Route::get('/restaurants', [MobileApiController::class, 'merchants'])->name('browse-restaurants');
 
-        // Favorites
-        Route::get('/favorites', [CustomerApiController::class, 'getFavorites'])->name('favorites');
-        Route::post('/favorites/{restaurantId}', [CustomerApiController::class, 'addToFavorites'])->name('add-to-favorites');
-        Route::delete('/favorites/{restaurantId}', [CustomerApiController::class, 'removeFromFavorites'])->name('remove-from-favorites');
+        // Advanced Search System (New)
+        Route::get('/search', [\App\Http\Controllers\Api\SearchController::class, 'search'])->name('search');
+        Route::get('/search/autocomplete', [\App\Http\Controllers\Api\SearchController::class, 'autocomplete'])->name('search-autocomplete');
+        Route::get('/search/suggestions', [\App\Http\Controllers\Api\SearchController::class, 'suggestions'])->name('search-suggestions');
+        Route::get('/search/history', [\App\Http\Controllers\Api\SearchController::class, 'history'])->name('search-history');
+        Route::delete('/search/history/{id}', [\App\Http\Controllers\Api\SearchController::class, 'deleteHistoryItem'])->name('delete-search-history-item');
+        Route::delete('/search/history', [\App\Http\Controllers\Api\SearchController::class, 'clearHistory'])->name('clear-search-history');
+        Route::post('/search/record-click', [\App\Http\Controllers\Api\SearchController::class, 'recordClick'])->name('record-search-click');
 
-        // Addresses
-        Route::get('/addresses', [CustomerApiController::class, 'getAddresses'])->name('addresses');
-        Route::post('/addresses', [CustomerApiController::class, 'addAddress'])->name('add-address');
-        Route::put('/addresses/{id}', [CustomerApiController::class, 'updateAddress'])->name('update-address');
-        Route::delete('/addresses/{id}', [CustomerApiController::class, 'deleteAddress'])->name('delete-address');
+        Route::get('/categories', [MobileApiController::class, 'foodNationalities'])->name('categories');
+        Route::get('/restaurants/{id}', [MobileApiController::class, 'merchantDetails'])->name('restaurant-details');
 
-        // Cart
-        Route::get('/cart', [CustomerApiController::class, 'getCart'])->name('cart');
-        Route::post('/cart', [CustomerApiController::class, 'addToCart'])->name('add-to-cart');
-        Route::put('/cart', [CustomerApiController::class, 'updateCart'])->name('update-cart');
-        Route::delete('/cart', [CustomerApiController::class, 'clearCart'])->name('clear-cart');
+        // Additional mobile endpoints
+        Route::get('/merchants', [MobileApiController::class, 'merchants'])->name('merchants');
+        Route::get('/merchants/{id}', [MobileApiController::class, 'merchantDetails'])->name('merchant-details');
+        Route::get('/merchants/{id}/products', [MobileApiController::class, 'merchantProducts'])->name('merchant-products');
+        Route::get('/merchants/{id}/categories', [MobileApiController::class, 'merchantCategories'])->name('merchant-categories');
 
-        // Reviews
-        Route::get('/reviews', [CustomerApiController::class, 'getReviews'])->name('reviews');
-        Route::post('/reviews', [CustomerApiController::class, 'submitReview'])->name('submit-review');
-        Route::put('/reviews/{id}', [CustomerApiController::class, 'updateReview'])->name('update-review');
+        // Product Management Routes (New)
+        Route::get('/products', [MobileApiController::class, 'allProducts'])->name('products');
+        Route::get('/products/{id}', [MobileApiController::class, 'singleProduct'])->name('product-details');
 
-        // Notifications
-        Route::get('/notifications', [CustomerApiController::class, 'getNotifications'])->name('notifications');
-        Route::post('/notifications/{id}/read', [CustomerApiController::class, 'markNotificationAsRead'])->name('mark-notification-read');
-        Route::post('/notifications/read-all', [CustomerApiController::class, 'markAllNotificationsAsRead'])->name('mark-all-notifications-read');
+        // Legacy product routes (maintained for backward compatibility)
+        Route::get('/products/featured', [MobileApiController::class, 'featuredProducts'])->name('featured-products');
+        Route::get('/products/popular', [MobileApiController::class, 'popularProducts'])->name('popular-products');
+        // Route::get('/products/search', [MobileApiController::class, 'searchProducts'])->name('search-products'); // DEPRECATED: Use Advanced Search System instead
+
+        // Orders (Mobile API)
+        Route::get('/orders', [MobileApiController::class, 'orderHistory'])->name('orders');
+        Route::post('/orders/create', [MobileApiController::class, 'createOrder'])->name('place-order');
+        Route::get('/orders/{id}', [MobileApiController::class, 'getOrder'])->name('order-details');
+        Route::get('/orders/{id}/track', [MobileApiController::class, 'trackOrder'])->name('track-order');
+        Route::post('/orders/{id}/cancel', [MobileApiController::class, 'cancelOrder'])->name('cancel-order');
+
+        // Favorites (Mobile API)
+        Route::get('/favorites', [MobileApiController::class, 'favoriteMerchants'])->name('favorites');
+        Route::post('/favorites/{merchantId}', [MobileApiController::class, 'addFavoriteMerchant'])->name('add-to-favorites');
+        Route::delete('/favorites/{merchantId}', [MobileApiController::class, 'removeFavoriteMerchant'])->name('remove-from-favorites');
+
+        // Addresses (Mobile API)
+        Route::get('/addresses', [MobileApiController::class, 'getAddresses'])->name('addresses');
+        Route::post('/addresses', [MobileApiController::class, 'createAddress'])->name('add-address');
+        Route::put('/addresses/{id}', [MobileApiController::class, 'updateAddress'])->name('update-address');
+        Route::delete('/addresses/{id}', [MobileApiController::class, 'deleteAddress'])->name('delete-address');
+        Route::post('/addresses/{id}/set-default', [MobileApiController::class, 'setDefaultAddress'])->name('set-default-address');
+
+        // Cart (Mobile API)
+        Route::get('/cart', [MobileApiController::class, 'getCart'])->name('cart');
+        Route::post('/cart/add', [MobileApiController::class, 'addToCart'])->name('add-to-cart');
+        Route::put('/cart/update/{itemId}', [MobileApiController::class, 'updateCartItem'])->name('update-cart');
+        Route::delete('/cart/remove/{itemId}', [MobileApiController::class, 'removeFromCart'])->name('remove-cart-item');
+        Route::delete('/cart/clear', [MobileApiController::class, 'clearCart'])->name('clear-cart');
+        Route::post('/cart/apply-coupon', [MobileApiController::class, 'applyCoupon'])->name('apply-coupon');
+        Route::delete('/cart/remove-coupon', [MobileApiController::class, 'removeCoupon'])->name('remove-coupon');
+
+        // Reviews (Mobile API)
+        Route::get('/reviews', [MobileApiController::class, 'getReviews'])->name('reviews');
+        Route::post('/reviews/merchants/{merchantId}', [MobileApiController::class, 'reviewMerchant'])->name('review-merchant');
+        Route::post('/reviews/products/{productId}', [MobileApiController::class, 'reviewProduct'])->name('review-product');
+
+        // Notifications (Mobile API)
+        Route::get('/notifications', [MobileApiController::class, 'getNotifications'])->name('notifications');
+        Route::post('/notifications/{id}/read', [MobileApiController::class, 'markNotificationAsRead'])->name('mark-notification-read');
+        Route::post('/notifications/read-all', [MobileApiController::class, 'markAllNotificationsAsRead'])->name('mark-all-notifications-read');
+
+        // Profile (Mobile API)
+        Route::get('/profile', [MobileApiController::class, 'getProfile'])->name('profile');
+        Route::put('/profile/update', [MobileApiController::class, 'updateProfile'])->name('update-profile');
+        Route::post('/profile/upload-avatar', [MobileApiController::class, 'uploadAvatar'])->name('upload-avatar');
+        Route::delete('/profile/delete-avatar', [MobileApiController::class, 'deleteAvatar'])->name('delete-avatar');
     });
 });
 
@@ -101,3 +141,5 @@ Route::prefix('admin/customers')->name('api.admin.customers.')->middleware(['aut
     Route::get('/{customer}', [CustomerController::class, 'show'])->name('show');
     Route::get('/{customer}/analytics', [CustomerController::class, 'adminDashboard'])->name('analytics');
 });
+
+

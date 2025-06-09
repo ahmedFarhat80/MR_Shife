@@ -126,7 +126,7 @@ class ImageHelper
         ?string $oldPath = null
     ): array {
         $result = self::upload($file, $directory, ['original'], $disk, $oldPath);
-        
+
         if ($result['success']) {
             return [
                 'success' => true,
@@ -203,7 +203,8 @@ class ImageHelper
         }
 
         if ($disk === 'public') {
-            return Storage::url($path);
+            // Return full URL with domain
+            return url(Storage::url($path));
         }
 
         return Storage::disk($disk)->url($path);
@@ -312,7 +313,7 @@ class ImageHelper
         $extension = $file->getClientOriginalExtension();
         $timestamp = now()->format('Y-m-d_H-i-s');
         $random = Str::random(8);
-        
+
         return "{$timestamp}_{$random}.{$extension}";
     }
 
@@ -351,7 +352,7 @@ class ImageHelper
 
             $size = self::SIZES[$sizeKey];
             $resizedFilename = pathinfo($filename, PATHINFO_FILENAME) . "_{$sizeKey}." . pathinfo($filename, PATHINFO_EXTENSION);
-            
+
             // Create resized image using Intervention Image (if available)
             if (class_exists('Intervention\Image\Facades\Image')) {
                 $image = Image::make($file->getPathname())
@@ -362,7 +363,7 @@ class ImageHelper
 
                 $resizedPath = $directory . '/' . $resizedFilename;
                 $fullPath = Storage::disk($disk)->path($resizedPath);
-                
+
                 // Ensure directory exists
                 $dirPath = dirname($fullPath);
                 if (!is_dir($dirPath)) {
@@ -444,4 +445,4 @@ class ImageHelper
     {
         return self::MAX_SIZE;
     }
-} 
+}

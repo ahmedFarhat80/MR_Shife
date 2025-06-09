@@ -76,6 +76,7 @@ class Merchant extends Authenticatable
         'registration_step',
         'is_verified',
         'is_approved',
+        'is_featured',
         'preferred_language',
         'approved_at',
         'completed_at',
@@ -163,6 +164,14 @@ class Merchant extends Authenticatable
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Get internal categories for this merchant.
+     */
+    public function internalCategories(): HasMany
+    {
+        return $this->hasMany(InternalCategory::class);
     }
 
     /**
@@ -303,5 +312,64 @@ class Merchant extends Authenticatable
     public function getHealthCertificateUrlAttribute(): ?string
     {
         return $this->health_certificate ? asset('storage/' . $this->health_certificate) : null;
+    }
+
+    /**
+     * Get featured products.
+     */
+    public function featuredProducts()
+    {
+        return $this->hasMany(Product::class)->where('is_featured', true)->where('is_available', true);
+    }
+
+    /**
+     * Get popular products.
+     */
+    public function popularProducts()
+    {
+        return $this->hasMany(Product::class)->where('is_popular', true)->where('is_available', true);
+    }
+
+    /**
+     * Get average rating.
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        // This would typically come from a reviews table
+        return 4.5;
+    }
+
+    /**
+     * Get reviews count.
+     */
+    public function getReviewsCountAttribute(): int
+    {
+        // This would typically come from a reviews table
+        return rand(50, 200);
+    }
+
+    /**
+     * Get orders count.
+     */
+    public function getOrdersCountAttribute(): int
+    {
+        // This would typically come from orders table
+        return rand(100, 1000);
+    }
+
+    /**
+     * Get products count.
+     */
+    public function getProductsCountAttribute(): int
+    {
+        return $this->products()->count();
+    }
+
+    /**
+     * Get internal categories count.
+     */
+    public function getInternalCategoriesCountAttribute(): int
+    {
+        return $this->internalCategories()->count();
     }
 }

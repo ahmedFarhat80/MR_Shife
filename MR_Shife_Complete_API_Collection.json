@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "mr-shife-complete-collection-2025",
 		"name": "🍽️ MR Shife API - Complete Collection",
-		"description": "شامل ومنظم - مجموعة API كاملة لمشروع مستر شيف\n\n📋 **المحتويات:**\n• 🔐 **Authentication** - تسجيل الدخول بـ OTP\n• 👥 **Customer APIs** - تسجيل وإدارة العملاء\n• 🏪 **Merchant APIs** - تسجيل وإدارة التجار\n• 🖼️ **Image Management** - إدارة الصور\n• 💳 **Subscriptions** - إدارة الاشتراكات\n\n🎯 **المميزات:**\n• إدارة التوكن التلقائية\n• دعم اللغتين العربية والإنجليزية\n• تنظيم شامل للـ endpoints\n• اختبار شامل لجميع الوظائف",
+		"description": "شامل ومنظم - مجموعة API كاملة لمشروع مستر شيف\n\n📋 **المحتويات:**\n• 🔐 **Authentication** - تسجيل الدخول بـ OTP\n• 👥 **Customer APIs** - تسجيل وإدارة العملاء\n• 🔍 **Advanced Search System** - نظام البحث المتقدم الجديد\n• 🏪 **Merchant APIs** - تسجيل وإدارة التجار\n• 🖼️ **Image Management** - إدارة الصور\n• 💳 **Subscriptions** - إدارة الاشتراكات\n\n🎯 **المميزات:**\n• إدارة التوكن التلقائية\n• دعم اللغتين العربية والإنجليزية\n• نظام بحث متقدم مع إكمال تلقائي\n• تاريخ البحث وتحليلات متقدمة\n• تنظيم شامل للـ endpoints\n• اختبار شامل لجميع الوظائف\n\n🆕 **الجديد في هذا الإصدار:**\n• نظام البحث الموحد للمنتجات والمطاعم\n• الإكمال التلقائي للبحث\n• تاريخ البحث للمستخدمين المسجلين\n• اقتراحات البحث الذكية\n• تتبع النقرات والتحليلات",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -533,49 +533,9 @@
 							}
 						},
 						{
-							"name": "Update Profile (JSON)",
+							"name": "Update Profile (Basic Fields)",
 							"request": {
-								"method": "PUT",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "application/json"
-									},
-									{
-										"key": "Authorization",
-										"value": "Bearer {{customer_token}}"
-									},
-									{
-										"key": "X-Language",
-										"value": "{{language}}"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"name_en\": \"John Updated\",\n    \"name_ar\": \"جون محدث\",\n    \"email\": \"john.updated@example.com\",\n    \"date_of_birth\": \"1990-05-15\",\n    \"gender\": \"male\",\n    \"dietary_preferences\": [\"vegetarian\", \"gluten_free\"],\n    \"favorite_cuisines\": [\"italian\", \"arabic\", \"indian\"],\n    \"notifications_enabled\": true,\n    \"sms_notifications\": true,\n    \"email_notifications\": false\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{Local_MR}}/customer/auth/profile",
-									"host": [
-										"{{Local_MR}}"
-									],
-									"path": [
-										"customer",
-										"auth",
-										"profile"
-									]
-								}
-							}
-						},
-						{
-							"name": "Update Profile with Avatar (FormData)",
-							"request": {
-								"method": "PUT",
+								"method": "POST",
 								"header": [
 									{
 										"key": "Accept",
@@ -594,6 +554,11 @@
 									"mode": "formdata",
 									"formdata": [
 										{
+											"key": "_method",
+											"value": "PUT",
+											"type": "text"
+										},
+										{
 											"key": "name_en",
 											"value": "John Updated",
 											"type": "text"
@@ -609,6 +574,11 @@
 											"type": "text"
 										},
 										{
+											"key": "preferred_language",
+											"value": "ar",
+											"type": "text"
+										},
+										{
 											"key": "date_of_birth",
 											"value": "1990-05-15",
 											"type": "text"
@@ -616,31 +586,6 @@
 										{
 											"key": "gender",
 											"value": "male",
-											"type": "text"
-										},
-										{
-											"key": "dietary_preferences[]",
-											"value": "vegetarian",
-											"type": "text"
-										},
-										{
-											"key": "dietary_preferences[]",
-											"value": "gluten_free",
-											"type": "text"
-										},
-										{
-											"key": "favorite_cuisines[]",
-											"value": "italian",
-											"type": "text"
-										},
-										{
-											"key": "favorite_cuisines[]",
-											"value": "arabic",
-											"type": "text"
-										},
-										{
-											"key": "favorite_cuisines[]",
-											"value": "indian",
 											"type": "text"
 										},
 										{
@@ -679,13 +624,13 @@
 							}
 						},
 						{
-							"name": "Update Profile with Addresses (JSON)",
+							"name": "Update Profile with Avatar (FormData)",
 							"request": {
-								"method": "PUT",
+								"method": "POST",
 								"header": [
 									{
 										"key": "Accept",
-										"value": "application/json"
+										"value": "*/*"
 									},
 									{
 										"key": "Authorization",
@@ -697,13 +642,296 @@
 									}
 								],
 								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"name_en\": \"John Complete\",\n    \"name_ar\": \"جون كامل\",\n    \"email\": \"john.complete@example.com\",\n    \"date_of_birth\": \"1990-05-15\",\n    \"gender\": \"male\",\n    \"addresses\": [\n        {\n            \"address_line\": \"123 Main Street\",\n            \"city\": \"Riyadh\",\n            \"area\": \"Al Malaz\",\n            \"building\": \"Building A\",\n            \"floor\": \"3rd Floor\",\n            \"apartment\": \"Apt 301\",\n            \"latitude\": 24.7136,\n            \"longitude\": 46.6753,\n            \"notes\": \"Near the main entrance\",\n            \"is_default\": true\n        },\n        {\n            \"address_line\": \"456 Second Street\",\n            \"city\": \"Riyadh\",\n            \"area\": \"Al Olaya\",\n            \"building\": \"Tower B\",\n            \"floor\": \"5th Floor\",\n            \"apartment\": \"Apt 502\",\n            \"latitude\": 24.6877,\n            \"longitude\": 46.7219,\n            \"notes\": \"Office address\",\n            \"is_default\": false\n        }\n    ],\n    \"default_address\": {\n        \"address_line\": \"123 Main Street\",\n        \"city\": \"Riyadh\",\n        \"area\": \"Al Malaz\",\n        \"building\": \"Building A\",\n        \"floor\": \"3rd Floor\",\n        \"apartment\": \"Apt 301\",\n        \"latitude\": 24.7136,\n        \"longitude\": 46.6753,\n        \"notes\": \"Primary delivery address\"\n    },\n    \"dietary_preferences\": [\"vegetarian\", \"gluten_free\", \"dairy_free\"],\n    \"favorite_cuisines\": [\"italian\", \"arabic\", \"indian\", \"chinese\"],\n    \"notifications_enabled\": true,\n    \"sms_notifications\": true,\n    \"email_notifications\": false\n}",
-									"options": {
-										"raw": {
-											"language": "json"
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "_method",
+											"value": "PUT",
+											"type": "text"
+										},
+										{
+											"key": "name_en",
+											"value": "John Updated2",
+											"type": "text"
+										},
+										{
+											"key": "name_ar",
+											"value": "جون محدث",
+											"type": "text"
+										},
+										{
+											"key": "email",
+											"value": "john.updated@example.com",
+											"type": "text"
+										},
+										{
+											"key": "preferred_language",
+											"value": "ar",
+											"type": "text"
+										},
+										{
+											"key": "date_of_birth",
+											"value": "1990-05-15",
+											"type": "text"
+										},
+										{
+											"key": "gender",
+											"value": "male",
+											"type": "text"
+										},
+										{
+											"key": "notifications_enabled",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "sms_notifications",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "email_notifications",
+											"value": "0",
+											"type": "text"
+										},
+										{
+											"key": "avatar",
+											"type": "file",
+											"src": []
 										}
+									]
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/auth/profile",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"auth",
+										"profile"
+									]
+								}
+							}
+						},
+						{
+							"name": "Update Profile with Addresses (FormData)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "*/*"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
 									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "_method",
+											"value": "PUT",
+											"type": "text"
+										},
+										{
+											"key": "name_en",
+											"value": "John Complete",
+											"type": "text"
+										},
+										{
+											"key": "name_ar",
+											"value": "جون كامل",
+											"type": "text"
+										},
+										{
+											"key": "email",
+											"value": "john.complete@example.com",
+											"type": "text"
+										},
+										{
+											"key": "date_of_birth",
+											"value": "1990-05-15",
+											"type": "text"
+										},
+										{
+											"key": "gender",
+											"value": "male",
+											"type": "text"
+										},
+										{
+											"key": "addresses[0][address_line]",
+											"value": "123 Main Street",
+											"type": "text"
+										},
+										{
+											"key": "addresses[0][city]",
+											"value": "Riyadh",
+											"type": "text"
+										},
+										{
+											"key": "addresses[0][area]",
+											"value": "Al Malaz",
+											"type": "text"
+										},
+										{
+											"key": "addresses[0][building]",
+											"value": "Building A",
+											"type": "text"
+										},
+										{
+											"key": "addresses[0][floor]",
+											"value": "3rd Floor",
+											"type": "text"
+										},
+										{
+											"key": "addresses[0][apartment]",
+											"value": "Apt 301",
+											"type": "text"
+										},
+										{
+											"key": "addresses[0][latitude]",
+											"value": "24.7136",
+											"type": "text"
+										},
+										{
+											"key": "addresses[0][longitude]",
+											"value": "46.6753",
+											"type": "text"
+										},
+										{
+											"key": "addresses[0][notes]",
+											"value": "Near the main entrance",
+											"type": "text"
+										},
+										{
+											"key": "addresses[0][is_default]",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "addresses[1][address_line]",
+											"value": "456 Second Street",
+											"type": "text"
+										},
+										{
+											"key": "addresses[1][city]",
+											"value": "Riyadh",
+											"type": "text"
+										},
+										{
+											"key": "addresses[1][area]",
+											"value": "Al Olaya",
+											"type": "text"
+										},
+										{
+											"key": "addresses[1][building]",
+											"value": "Tower B",
+											"type": "text"
+										},
+										{
+											"key": "addresses[1][floor]",
+											"value": "5th Floor",
+											"type": "text"
+										},
+										{
+											"key": "addresses[1][apartment]",
+											"value": "Apt 502",
+											"type": "text"
+										},
+										{
+											"key": "addresses[1][latitude]",
+											"value": "24.6877",
+											"type": "text"
+										},
+										{
+											"key": "addresses[1][longitude]",
+											"value": "46.7219",
+											"type": "text"
+										},
+										{
+											"key": "addresses[1][notes]",
+											"value": "Office address",
+											"type": "text"
+										},
+										{
+											"key": "addresses[1][is_default]",
+											"value": "0",
+											"type": "text"
+										},
+										{
+											"key": "default_address[address_line]",
+											"value": "123 Main Street",
+											"type": "text"
+										},
+										{
+											"key": "default_address[city]",
+											"value": "Riyadh",
+											"type": "text"
+										},
+										{
+											"key": "default_address[area]",
+											"value": "Al Malaz",
+											"type": "text"
+										},
+										{
+											"key": "default_address[building]",
+											"value": "Building A",
+											"type": "text"
+										},
+										{
+											"key": "default_address[floor]",
+											"value": "3rd Floor",
+											"type": "text"
+										},
+										{
+											"key": "default_address[apartment]",
+											"value": "Apt 301",
+											"type": "text"
+										},
+										{
+											"key": "default_address[latitude]",
+											"value": "24.7136",
+											"type": "text"
+										},
+										{
+											"key": "default_address[longitude]",
+											"value": "46.6753",
+											"type": "text"
+										},
+										{
+											"key": "default_address[notes]",
+											"value": "Primary delivery address",
+											"type": "text"
+										},
+
+										{
+											"key": "notifications_enabled",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "sms_notifications",
+											"value": "1",
+											"type": "text"
+										},
+										{
+											"key": "email_notifications",
+											"value": "0",
+											"type": "text"
+										},
+										{
+											"key": "avatar",
+											"type": "file",
+											"src": []
+										}
+									]
 								},
 								"url": {
 									"raw": "{{Local_MR}}/customer/auth/profile",
@@ -849,47 +1077,7 @@
 								}
 							}
 						},
-						{
-							"name": "Search",
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "Accept",
-										"value": "application/json"
-									},
-									{
-										"key": "Authorization",
-										"value": "Bearer {{customer_token}}"
-									},
-									{
-										"key": "X-Language",
-										"value": "{{language}}"
-									}
-								],
-								"url": {
-									"raw": "{{Local_MR}}/customer/app/search?q=pizza&type=restaurant",
-									"host": [
-										"{{Local_MR}}"
-									],
-									"path": [
-										"customer",
-										"app",
-										"search"
-									],
-									"query": [
-										{
-											"key": "q",
-											"value": "pizza"
-										},
-										{
-											"key": "type",
-											"value": "restaurant"
-										}
-									]
-								}
-							}
-						},
+
 						{
 							"name": "Get Categories",
 							"request": {
@@ -951,6 +1139,663 @@
 										"1"
 									]
 								}
+							}
+						}
+					]
+				},
+				{
+					"name": "🍽️ Product Management (New)",
+					"description": "إدارة المنتجات المتقدمة - عرض جميع المنتجات مع فلترة وترتيب متقدم",
+					"item": [
+						{
+							"name": "📋 Get All Products",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/app/products?page=1&per_page=15&sort_by=newest&search=chicken&category_id=1&food_nationality_id=2&merchant_id=1&min_price=10&max_price=100&is_vegetarian=false&is_spicy=true&is_featured=true&is_popular=false",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"app",
+										"products"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1",
+											"description": "Page number (default: 1)"
+										},
+										{
+											"key": "per_page",
+											"value": "15",
+											"description": "Items per page (max: 50, default: 15)"
+										},
+										{
+											"key": "sort_by",
+											"value": "newest",
+											"description": "Sort by: price_asc, price_desc, rating_desc, popularity_desc, newest"
+										},
+										{
+											"key": "search",
+											"value": "chicken",
+											"description": "Search in product name and description"
+										},
+										{
+											"key": "category_id",
+											"value": "1",
+											"description": "Filter by internal category ID"
+										},
+										{
+											"key": "food_nationality_id",
+											"value": "2",
+											"description": "Filter by food nationality ID"
+										},
+										{
+											"key": "merchant_id",
+											"value": "1",
+											"description": "Filter by merchant ID"
+										},
+										{
+											"key": "min_price",
+											"value": "10",
+											"description": "Minimum price filter"
+										},
+										{
+											"key": "max_price",
+											"value": "100",
+											"description": "Maximum price filter"
+										},
+										{
+											"key": "is_vegetarian",
+											"value": "false",
+											"description": "Filter vegetarian products (true/false)"
+										},
+										{
+											"key": "is_spicy",
+											"value": "true",
+											"description": "Filter spicy products (true/false)"
+										},
+										{
+											"key": "is_featured",
+											"value": "true",
+											"description": "Filter featured products (true/false)"
+										},
+										{
+											"key": "is_popular",
+											"value": "false",
+											"description": "Filter popular products (true/false)"
+										}
+									]
+								},
+								"description": "🆕 Get all products with advanced filtering, sorting, and search capabilities. Supports pagination and comprehensive filtering options."
+							}
+						},
+						{
+							"name": "🔍 Get Product Details",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/app/products/1",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"app",
+										"products",
+										"1"
+									]
+								},
+								"description": "🆕 Get detailed product information including merchant info, related products, and similar products from other merchants."
+							}
+						},
+						{
+							"name": "🍽️ Filter by Category",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/app/products?category_id=1&sort_by=price_asc",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"app",
+										"products"
+									],
+									"query": [
+										{
+											"key": "category_id",
+											"value": "1",
+											"description": "Filter by specific category"
+										},
+										{
+											"key": "sort_by",
+											"value": "price_asc",
+											"description": "Sort by price ascending"
+										}
+									]
+								},
+								"description": "Example: Filter products by category and sort by price"
+							}
+						},
+						{
+							"name": "🌱 Vegetarian Products",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/app/products?is_vegetarian=true&sort_by=rating_desc",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"app",
+										"products"
+									],
+									"query": [
+										{
+											"key": "is_vegetarian",
+											"value": "true",
+											"description": "Filter only vegetarian products"
+										},
+										{
+											"key": "sort_by",
+											"value": "rating_desc",
+											"description": "Sort by rating descending"
+										}
+									]
+								},
+								"description": "Example: Get vegetarian products sorted by rating"
+							}
+						},
+						{
+							"name": "💰 Price Range Filter",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/app/products?min_price=20&max_price=50&sort_by=price_desc",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"app",
+										"products"
+									],
+									"query": [
+										{
+											"key": "min_price",
+											"value": "20",
+											"description": "Minimum price"
+										},
+										{
+											"key": "max_price",
+											"value": "50",
+											"description": "Maximum price"
+										},
+										{
+											"key": "sort_by",
+											"value": "price_desc",
+											"description": "Sort by price descending"
+										}
+									]
+								},
+								"description": "Example: Filter products by price range (20-50 SAR)"
+							}
+						},
+						{
+							"name": "⭐ Featured & Popular",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/app/products?is_featured=true&is_popular=true&sort_by=popularity_desc",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"app",
+										"products"
+									],
+									"query": [
+										{
+											"key": "is_featured",
+											"value": "true",
+											"description": "Featured products only"
+										},
+										{
+											"key": "is_popular",
+											"value": "true",
+											"description": "Popular products only"
+										},
+										{
+											"key": "sort_by",
+											"value": "popularity_desc",
+											"description": "Sort by popularity"
+										}
+									]
+								},
+								"description": "Example: Get featured and popular products"
+							}
+						}
+					]
+				},
+				{
+					"name": "🔍 Advanced Search System",
+					"description": "نظام البحث المتقدم - بحث موحد في المنتجات والمطاعم مع إكمال تلقائي وتاريخ البحث",
+					"item": [
+						{
+							"name": "🔍 Advanced Search (New)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/app/search?query=pizza&search_type=all&category_id=1&merchant_id=1&price_min=15&price_max=100&is_vegetarian=false&per_page=20&sort_by=relevance&sort_order=desc",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"app",
+										"search"
+									],
+									"query": [
+										{
+											"key": "query",
+											"value": "pizza",
+											"description": "Search term (required, min 2 chars)"
+										},
+										{
+											"key": "search_type",
+											"value": "all",
+											"description": "Search scope: all, products, restaurants"
+										},
+										{
+											"key": "category_id",
+											"value": "1",
+											"description": "Filter by category"
+										},
+										{
+											"key": "merchant_id",
+											"value": "1",
+											"description": "Filter by merchant"
+										},
+										{
+											"key": "price_min",
+											"value": "15",
+											"description": "Minimum price"
+										},
+										{
+											"key": "price_max",
+											"value": "100",
+											"description": "Maximum price"
+										},
+										{
+											"key": "is_vegetarian",
+											"value": "false",
+											"description": "Filter vegetarian products"
+										},
+										{
+											"key": "per_page",
+											"value": "20",
+											"description": "Items per page (max 50)"
+										},
+										{
+											"key": "sort_by",
+											"value": "relevance",
+											"description": "Sort by: relevance, price, rating, name"
+										},
+										{
+											"key": "sort_order",
+											"value": "desc",
+											"description": "Sort order: asc, desc"
+										}
+									]
+								},
+								"description": "🆕 Advanced unified search for both products and restaurants with language-aware results and comprehensive filtering."
+							}
+						},
+						{
+							"name": "🔍 Autocomplete Suggestions",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/app/search/autocomplete?query=piz&limit=10&type=all",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"app",
+										"search",
+										"autocomplete"
+									],
+									"query": [
+										{
+											"key": "query",
+											"value": "piz",
+											"description": "Partial search term"
+										},
+										{
+											"key": "limit",
+											"value": "10",
+											"description": "Max suggestions (max 20)"
+										},
+										{
+											"key": "type",
+											"value": "all",
+											"description": "Suggestion type: all, products, restaurants"
+										}
+									]
+								},
+								"description": "🆕 Get real-time autocomplete suggestions based on partial query."
+							}
+						},
+						{
+							"name": "💡 Search Suggestions",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/app/search/suggestions?limit=10",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"app",
+										"search",
+										"suggestions"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "10",
+											"description": "Max suggestions"
+										}
+									]
+								},
+								"description": "🆕 Get trending searches, popular products, and categories for search suggestions."
+							}
+						},
+						{
+							"name": "📜 Search History (Auth Required)",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/app/search/history?limit=20",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"app",
+										"search",
+										"history"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "20",
+											"description": "Max history items"
+										}
+									]
+								},
+								"description": "🆕 Get user's search history with authentication required."
+							}
+						},
+						{
+							"name": "🗑️ Delete Search History Item (Auth Required)",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/app/search/history/1",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"app",
+										"search",
+										"history",
+										"1"
+									]
+								},
+								"description": "🆕 Delete specific search history item."
+							}
+						},
+						{
+							"name": "🧹 Clear Search History (Auth Required)",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/app/search/history",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"app",
+										"search",
+										"history"
+									]
+								},
+								"description": "🆕 Clear all search history for the authenticated user."
+							}
+						},
+						{
+							"name": "📊 Record Search Click (Auth Required)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"search_history_id\": 1,\n    \"result_type\": \"product\",\n    \"result_id\": 5\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/app/search/record-click",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"app",
+										"search",
+										"record-click"
+									]
+								},
+								"description": "🆕 Record user click on search result for analytics."
 							}
 						}
 					]

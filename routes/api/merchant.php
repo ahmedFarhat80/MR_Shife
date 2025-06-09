@@ -4,10 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\MerchantRegistrationController;
 use App\Http\Controllers\Api\MerchantProfileController;
 use App\Http\Controllers\Api\MerchantApiController;
-use App\Http\Controllers\Api\Vendor\ProductController;
-use App\Http\Controllers\Api\Vendor\CategoryController;
-use App\Http\Controllers\Api\Vendor\OrderController;
-use App\Http\Controllers\Api\Vendor\AnalyticsController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -112,3 +109,5 @@ Route::prefix('merchant')->middleware(['auth:sanctum'])->group(function () {
         Route::put('/delivery-settings', [MerchantApiController::class, 'updateDeliverySettings'])->name('update-delivery-settings');
     });
 });
+
+

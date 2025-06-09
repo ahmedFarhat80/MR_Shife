@@ -203,7 +203,7 @@ class CustomerController extends Controller
 
             if (isset($tierRanges[$tier])) {
                 [$min, $max] = $tierRanges[$tier];
-                
+
                 $query->whereHas('orders', function ($q) use ($min, $max) {
                     $q->where('status', 'delivered')
                       ->havingRaw('SUM(total_amount) >= ? AND SUM(total_amount) <= ?', [$min, $max]);
@@ -251,4 +251,4 @@ class CustomerController extends Controller
             'data' => $dashboard,
         ]);
     }
-} 
+}
