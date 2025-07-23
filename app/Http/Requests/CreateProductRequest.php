@@ -105,15 +105,15 @@ class CreateProductRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            // Validate that category belongs to the authenticated service provider
+            // Validate that internal category belongs to the authenticated merchant
             $user = $this->user();
-            if ($user && $this->category_id) {
-                $categoryExists = \App\Models\Category::where('id', $this->category_id)
+            if ($user && $this->internal_category_id) {
+                $categoryExists = \App\Models\InternalCategory::where('id', $this->internal_category_id)
                     ->where('merchant_id', $user->id)
                     ->exists();
-                
+
                 if (!$categoryExists) {
-                    $validator->errors()->add('category_id', 'Category does not belong to your business.');
+                    $validator->errors()->add('internal_category_id', 'Internal category does not belong to your business.');
                 }
             }
         });

@@ -23,7 +23,9 @@ class OrderItem extends Model
         'total_price',
         'product_snapshot',
         'customizations',
+        'options_summary',
         'special_instructions',
+        'delivery_instructions',
     ];
 
     /**
@@ -39,6 +41,7 @@ class OrderItem extends Model
             'total_price' => 'decimal:2',
             'product_snapshot' => 'array',
             'customizations' => 'array',
+            'options_summary' => 'array',
         ];
     }
 
@@ -67,7 +70,7 @@ class OrderItem extends Model
         if (isset($snapshot['name'])) {
             return $snapshot['name'];
         }
-        
+
         return $this->product?->name ?? 'Unknown Product';
     }
 
@@ -80,7 +83,7 @@ class OrderItem extends Model
         if (isset($snapshot['image'])) {
             return $snapshot['image'];
         }
-        
+
         return $this->product?->main_image_url;
     }
 }

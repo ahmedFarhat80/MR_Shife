@@ -81,17 +81,21 @@ class ProductSeeder extends Seeder
 
         $categories = $this->getCategoriesForType($merchantType);
 
+        // Get appropriate categories from existing global categories
         $result = [];
-        foreach ($categories as $index => $categoryData) {
-            $result[] = InternalCategory::firstOrCreate([
-                'merchant_id' => $merchant->id,
-                'name' => $categoryData['name'],
-            ], [
-                'name' => $categoryData['name'],
-                'description' => $categoryData['description'],
-                'is_active' => true,
-                'sort_order' => $index + 1,
-            ]);
+        foreach ($categories as $categoryData) {
+            // Find existing global category by name
+            $category = InternalCategory::where('name->en', $categoryData['name']['en'])
+                ->first();
+
+            if ($category) {
+                $result[] = $category;
+            }
+        }
+
+        // If no specific categories found, get some default ones
+        if (empty($result)) {
+            $result = InternalCategory::take(4)->get()->toArray();
         }
 
         return $result;

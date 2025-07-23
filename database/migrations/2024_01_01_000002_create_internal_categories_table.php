@@ -13,16 +13,15 @@ return new class extends Migration
     {
         Schema::create('internal_categories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('merchant_id')->constrained()->onDelete('cascade');
             $table->json('name'); // Translatable: {en: "Appetizers", ar: "المقبلات"}
             $table->json('description')->nullable(); // Translatable description
             $table->string('image')->nullable(); // Category image
             $table->integer('sort_order')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-            
+
             // Indexes
-            $table->index(['merchant_id', 'is_active']);
+            $table->index('is_active');
             $table->index('sort_order');
         });
     }

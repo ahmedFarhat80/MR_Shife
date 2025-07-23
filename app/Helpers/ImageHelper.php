@@ -203,8 +203,17 @@ class ImageHelper
         }
 
         if ($disk === 'public') {
-            // Return full URL with domain
-            return url(Storage::url($path));
+            // Normalize path separators for URLs (always use forward slashes)
+            $normalizedPath = str_replace('\\', '/', $path);
+
+            // Check if file exists
+            $fullPath = storage_path('app/public/' . $normalizedPath);
+            if (!file_exists($fullPath)) {
+                return $default;
+            }
+
+            // Return full URL with domain using current app URL
+            return config('app.url') . '/storage/' . $normalizedPath;
         }
 
         return Storage::disk($disk)->url($path);

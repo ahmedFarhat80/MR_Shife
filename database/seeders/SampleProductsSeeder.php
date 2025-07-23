@@ -25,11 +25,8 @@ class SampleProductsSeeder extends Seeder
             return;
         }
 
-        // Create internal categories for the merchant
-        $this->createInternalCategories($merchant->id);
-
-        // Get categories and nationalities
-        $categories = InternalCategory::where('merchant_id', $merchant->id)->get();
+        // Get existing global categories and nationalities
+        $categories = InternalCategory::take(4)->get();
         $nationalities = FoodNationality::all();
 
         if ($categories->isEmpty() || $nationalities->isEmpty()) {
@@ -43,54 +40,29 @@ class SampleProductsSeeder extends Seeder
         $this->command->info('Sample products created successfully!');
     }
 
-    /**
-     * Create internal categories for the merchant.
-     */
-    private function createInternalCategories(int $merchantId): void
-    {
-        $categories = [
-            [
-                'name' => ['en' => 'Appetizers', 'ar' => 'المقبلات'],
-                'description' => ['en' => 'Delicious starters', 'ar' => 'مقبلات شهية'],
-                'sort_order' => 1,
-            ],
-            [
-                'name' => ['en' => 'Main Dishes', 'ar' => 'الأطباق الرئيسية'],
-                'description' => ['en' => 'Hearty main courses', 'ar' => 'أطباق رئيسية دسمة'],
-                'sort_order' => 2,
-            ],
-            [
-                'name' => ['en' => 'Beverages', 'ar' => 'المشروبات'],
-                'description' => ['en' => 'Refreshing drinks', 'ar' => 'مشروبات منعشة'],
-                'sort_order' => 3,
-            ],
-            [
-                'name' => ['en' => 'Desserts', 'ar' => 'الحلويات'],
-                'description' => ['en' => 'Sweet treats', 'ar' => 'حلويات لذيذة'],
-                'sort_order' => 4,
-            ],
-        ];
 
-        foreach ($categories as $category) {
-            InternalCategory::create(array_merge($category, [
-                'merchant_id' => $merchantId,
-                'is_active' => true,
-            ]));
-        }
-    }
 
     /**
      * Create sample products with options.
      */
     private function createSampleProducts(int $merchantId, $categories, $nationalities): void
     {
+        // Get available categories and nationalities safely
+        $mainCategory = $categories->first(); // Use first available category
+        $nationality = $nationalities->first(); // Use first available nationality
+
+        if (!$mainCategory || !$nationality) {
+            $this->command->warn('No categories or nationalities found for merchant ' . $merchantId);
+            return;
+        }
+
         $products = [
             // Burger with size options
             [
                 'name' => ['en' => 'Classic Beef Burger', 'ar' => 'برجر اللحم الكلاسيكي'],
                 'description' => ['en' => 'Juicy beef patty with fresh vegetables', 'ar' => 'قطعة لحم عصيرة مع خضار طازجة'],
-                'internal_category_id' => $categories->where('name->en', 'Main Dishes')->first()->id,
-                'food_nationality_id' => $nationalities->where('name->en', 'Fast Food')->first()->id,
+                'internal_category_id' => $mainCategory->id,
+                'food_nationality_id' => $nationality->id,
                 'background_type' => 'color',
                 'background_value' => '#FF6B35',
                 'base_price' => 25.00,
@@ -128,8 +100,8 @@ class SampleProductsSeeder extends Seeder
             [
                 'name' => ['en' => 'Margherita Pizza', 'ar' => 'بيتزا مارجريتا'],
                 'description' => ['en' => 'Classic pizza with tomato, mozzarella and basil', 'ar' => 'بيتزا كلاسيكية بالطماطم والموزاريلا والريحان'],
-                'internal_category_id' => $categories->where('name->en', 'Main Dishes')->first()->id,
-                'food_nationality_id' => $nationalities->where('name->en', 'Italian Cuisine')->first()->id,
+                'internal_category_id' => $mainCategory->id,
+                'food_nationality_id' => $nationality->id,
                 'background_type' => 'color',
                 'background_value' => '#C41E3A',
                 'base_price' => 35.00,

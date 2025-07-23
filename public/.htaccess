@@ -5,6 +5,20 @@
 
     RewriteEngine On
 
+    # Add CORS headers for storage files
+    <IfModule mod_headers.c>
+        SetEnvIf Origin "http(s)?://(www\.)?(localhost|127\.0\.0\.1)(:[0-9]+)?$" AccessControlAllowOrigin=$0
+        Header add Access-Control-Allow-Origin %{AccessControlAllowOrigin}e env=AccessControlAllowOrigin
+        Header merge Vary Origin
+
+        # Handle storage files specifically
+        <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg)$">
+            Header set Access-Control-Allow-Origin "*"
+            Header set Access-Control-Allow-Methods "GET, OPTIONS"
+            Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+        </FilesMatch>
+    </IfModule>
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

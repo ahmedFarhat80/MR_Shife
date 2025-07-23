@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\InternalCategory;
-use App\Models\Merchant;
 
 class InternalCategoriesSeeder extends Seeder
 {
@@ -13,25 +12,16 @@ class InternalCategoriesSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get all active merchants
-        $merchants = Merchant::where('status', 'active')->get();
+        // Create global categories that all merchants can use
+        $this->createGlobalCategories();
 
-        if ($merchants->isEmpty()) {
-            $this->command->warn('No active merchants found. Please run MerchantsSeeder first.');
-            return;
-        }
-
-        foreach ($merchants as $merchant) {
-            $this->createCategoriesForMerchant($merchant->id);
-        }
-
-        $this->command->info('Internal categories created successfully for all merchants!');
+        $this->command->info('Global internal categories created successfully!');
     }
 
     /**
-     * Create internal categories for a specific merchant.
+     * Create global internal categories.
      */
-    private function createCategoriesForMerchant(int $merchantId): void
+    private function createGlobalCategories(): void
     {
         $categories = [
             [
@@ -98,7 +88,6 @@ class InternalCategoriesSeeder extends Seeder
 
         foreach ($categories as $category) {
             InternalCategory::create(array_merge($category, [
-                'merchant_id' => $merchantId,
                 'is_active' => true,
             ]));
         }

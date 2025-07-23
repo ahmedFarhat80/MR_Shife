@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CustomerAuthController;
 use App\Http\Controllers\Api\CustomerController;
-use App\Http\Controllers\Api\CustomerApiController;
 use App\Http\Controllers\Api\MobileApiController;
 
 /*
@@ -82,11 +81,13 @@ Route::prefix('customer')->middleware(['auth:sanctum'])->group(function () {
 
         // Product Management Routes (New)
         Route::get('/products', [MobileApiController::class, 'allProducts'])->name('products');
-        Route::get('/products/{id}', [MobileApiController::class, 'singleProduct'])->name('product-details');
 
         // Legacy product routes (maintained for backward compatibility)
         Route::get('/products/featured', [MobileApiController::class, 'featuredProducts'])->name('featured-products');
         Route::get('/products/popular', [MobileApiController::class, 'popularProducts'])->name('popular-products');
+
+        // Product details route (must be after specific routes)
+        Route::get('/products/{id}', [MobileApiController::class, 'singleProduct'])->name('product-details');
         // Route::get('/products/search', [MobileApiController::class, 'searchProducts'])->name('search-products'); // DEPRECATED: Use Advanced Search System instead
 
         // Orders (Mobile API)

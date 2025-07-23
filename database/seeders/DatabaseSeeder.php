@@ -21,20 +21,32 @@ class DatabaseSeeder extends Seeder
 
         // Seed all data in correct order
         $this->call([
-            // Core data first
+            // 1. Permissions and roles first (MUST be first)
+            PermissionSeeder::class,
+            RoleSeeder::class,
+
+            // 2. Admin users (after roles are created)
+            AdminSeeder::class,
+
+            // 3. Core data (subscription plans and food nationalities)
             SubscriptionPlanSeeder::class,
             FoodNationalitiesSeeder::class,
 
-            // Create realistic merchants and customers
+            // 4. Create realistic merchants and customers
             RealisticMerchantsSeeder::class,
             RealisticCustomersSeeder::class,
 
-            // Create internal categories for each merchant
-            RealisticInternalCategoriesSeeder::class,
+            // 5. Create internal categories for each merchant
+            InternalCategoriesSeeder::class,
 
-            // Create realistic products for each merchant type
-            RealisticRestaurantProductsSeeder::class,
-            RealisticCafeProductsSeeder::class,
+            // 6. Create products (using enhanced ProductSeeder only)
+            ProductSeeder::class, // Enhanced seeder with realistic products for each merchant type
+
+            // 7. Create sample products with options (for testing)
+            SampleProductsSeeder::class, // Products with options and customizations
+
+            // 8. Create orders with realistic data
+            OrderSeeder::class,
         ]);
     }
 }

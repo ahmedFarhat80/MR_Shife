@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Translatable\HasTranslations;
+use App\Helpers\ImageHelper;
+use App\Helpers\CacheHelper;
+use Illuminate\Support\Facades\Log;
 
 class FoodNationality extends Model
 {
@@ -47,12 +50,45 @@ class FoodNationality extends Model
         ];
     }
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        // مسح الكاش عند الإنشاء أو التحديث أو الحذف
+        static::saved(function ($model) {
+            self::clearCache();
+            \Illuminate\Support\Facades\Cache::forget('nationality_' . $model->id);
+        });
+
+        static::deleted(function ($model) {
+            self::clearCache();
+            \Illuminate\Support\Facades\Cache::forget('nationality_' . $model->id);
+        });
+
+        static::updated(function ($model) {
+            self::clearCache();
+            \Illuminate\Support\Facades\Cache::forget('nationality_' . $model->id);
+        });
+
+        static::created(function ($model) {
+            self::clearCache();
+        });
+    }
+
+    /**
+     * مسح كاش الجنسيات
+     */
+    public static function clearCache(): void
+    {
+        CacheHelper::clearNationalities();
+    }
+
     /**
      * Get the products for this food nationality.
      */
     public function products(): HasMany
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(Product::class, 'food_nationality_id');
     }
 
     /**
@@ -88,5 +124,30 @@ class FoodNationality extends Model
     {
         return $this->getTranslation('description', app()->getLocale())
             ?: $this->getTranslation('description', 'en');
+    }
+
+    /**
+     * Get the icon URL attribute.
+     */
+    public function getIconUrlAttribute()
+    {
+        if (!$this->icon) {
+            return null;
+        }
+
+        try {
+            // التحقق من وجود الأيقونة فعلياً
+            $iconPath = storage_path('app/public/' . $this->icon);
+            if (!file_exists($iconPath)) {
+                // إذا كانت الأيقونة غير موجودة، حذف المرجع من قاعدة البيانات
+                $this->update(['icon' => null]);
+                return null;
+            }
+
+            return ImageHelper::getUrl($this->icon);
+        } catch (\Exception $e) {
+            Log::warning('Error getting nationality icon URL: ' . $e->getMessage());
+            return null;
+        }
     }
 }

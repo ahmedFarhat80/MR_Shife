@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Translatable\HasTranslations;
 use App\Helpers\ImageHelper;
+use Illuminate\Support\Facades\Log;
+use App\Helpers\CacheHelper;
 
 class InternalCategory extends Model
 {
@@ -19,7 +20,6 @@ class InternalCategory extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'merchant_id',
         'name',
         'description',
         'image',
@@ -50,12 +50,42 @@ class InternalCategory extends Model
         ];
     }
 
-    /**
-     * Get the merchant that owns the category.
-     */
-    public function merchant(): BelongsTo
+    protected static function boot()
     {
-        return $this->belongsTo(Merchant::class);
+        parent::boot();
+
+        // مسح الكاش عند الإنشاء أو التحديث أو الحذف
+        static::saved(function ($model) {
+            self::clearCache();
+            // مسح كاش الفئة المحددة
+            \Illuminate\Support\Facades\Cache::forget('category_' . $model->id);
+        });
+
+        static::deleted(function ($model) {
+            self::clearCache();
+            // مسح كاش الفئة المحذوفة
+            \Illuminate\Support\Facades\Cache::forget('category_' . $model->id);
+        });
+
+        // مسح الكاش عند التحديث
+        static::updated(function ($model) {
+            self::clearCache();
+            \Illuminate\Support\Facades\Cache::forget('category_' . $model->id);
+        });
+
+        // مسح الكاش عند الإنشاء
+        static::created(function ($model) {
+            self::clearCache();
+        });
+    }
+
+    /**
+     * مسح كاش الفئات
+     */
+    public static function clearCache(): void
+    {
+        CacheHelper::clearCategories();
+        CacheHelper::clearFilament();
     }
 
     /**
@@ -82,13 +112,7 @@ class InternalCategory extends Model
         return $query->orderBy('sort_order')->orderBy('name');
     }
 
-    /**
-     * Scope to filter by merchant.
-     */
-    public function scopeForMerchant($query, $merchantId)
-    {
-        return $query->where('merchant_id', $merchantId);
-    }
+
 
     /**
      * Get the translated name attribute.
@@ -114,6 +138,25 @@ class InternalCategory extends Model
      */
     public function getImageUrlAttribute()
     {
-        return $this->image ? ImageHelper::getUrl($this->image) : null;
+        if (!$this->image) {
+            return null;
+        }
+
+        try {
+            // التحقق من وجود الصورة فعلياً
+            $imagePath = storage_path('app/public/' . $this->image);
+            if (!file_exists($imagePath)) {
+                // إذا كانت الصورة غير موجودة، حذف المرجع من قاعدة البيانات
+                $this->update(['image' => null]);
+                return null;
+            }
+
+            return ImageHelper::getUrl($this->image);
+        } catch (\Exception $e) {
+            Log::warning('Error getting category image URL: ' . $e->getMessage());
+            return null;
+        }
     }
+
+
 }

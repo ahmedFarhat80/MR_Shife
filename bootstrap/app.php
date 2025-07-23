@@ -16,6 +16,16 @@ return Application::configure(basePath: dirname(__DIR__))
             'api.rate.limit' => \App\Http\Middleware\ApiRateLimiter::class,
             'otp.rate.limit' => \App\Http\Middleware\ConditionalOTPRateLimit::class,
             'set.language' => \App\Http\Middleware\SetLanguage::class,
+            'set.locale' => \App\Http\Middleware\SetLocale::class,
+            'performance.monitor' => \App\Http\Middleware\PerformanceMonitorMiddleware::class,
+            'storage.cors' => \App\Http\Middleware\HandleStorageCors::class,
+        ]);
+
+        // Add middleware to web routes for Filament
+        $middleware->web(append: [
+            'set.locale',
+            'performance.monitor',
+            'storage.cors',
         ]);
 
         // Add API routes (rate limiting disabled)

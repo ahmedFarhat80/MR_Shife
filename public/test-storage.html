@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Storage Images</title>
+</head>
+<body>
+    <h1>Test Storage Images</h1>
+    
+    <h2>Direct Storage Link:</h2>
+    <img src="/storage/category-images/01JXYSZMHXV3M517MTYSP5BY38.jpg" alt="Test Image" style="max-width: 300px;">
+    
+    <h2>Via Route:</h2>
+    <img src="http://127.0.0.1:8000/storage/category-images/01JXYSZMHXV3M517MTYSP5BY38.jpg" alt="Test Image 2" style="max-width: 300px;">
+    
+    <h2>File Info:</h2>
+    <p>File path: /storage/category-images/01JXYSZMHXV3M517MTYSP5BY38.jpg</p>
+    <p>Full URL: http://127.0.0.1:8000/storage/category-images/01JXYSZMHXV3M517MTYSP5BY38.jpg</p>
+    
+    <script>
+        // Test fetch
+        fetch('/storage/category-images/01JXYSZMHXV3M517MTYSP5BY38.jpg')
+            .then(response => {
+                console.log('Fetch response:', response.status, response.statusText);
+                console.log('Headers:', [...response.headers.entries()]);
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+            });
+    </script>
+</body>
+</html>
