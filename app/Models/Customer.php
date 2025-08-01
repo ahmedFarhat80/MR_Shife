@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Translatable\HasTranslations;
 
@@ -236,13 +237,9 @@ class Customer extends Authenticatable
      */
     public function getAvatarUrlAttribute(): string
     {
-        // If avatar exists, return full URL
-        if ($this->avatar) {
-            // Check if file exists
-            $fullPath = storage_path('app/public/' . $this->avatar);
-            if (file_exists($fullPath)) {
-                return config('app.url') . '/storage/' . str_replace('\\', '/', $this->avatar);
-            }
+        // If avatar exists, return Laravel Storage URL
+        if ($this->avatar && Storage::disk('public')->exists($this->avatar)) {
+            return Storage::disk('public')->url($this->avatar);
         }
 
         // Generate default avatar with initials

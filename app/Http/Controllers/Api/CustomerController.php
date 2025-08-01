@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class CustomerController extends Controller
 {
@@ -171,56 +172,26 @@ class CustomerController extends Controller
         try {
             // Delete old avatar if exists
             if ($customer->avatar) {
-                $oldPath = storage_path('app/public/' . $customer->avatar);
-                $oldPublicPath = public_path('storage/' . $customer->avatar);
-
-                if (file_exists($oldPath)) {
-                    unlink($oldPath);
-                }
-                if (file_exists($oldPublicPath)) {
-                    unlink($oldPublicPath);
-                }
+                Storage::disk('public')->delete($customer->avatar);
             }
 
-            // Upload new avatar using direct file operations
+            // Upload new avatar using Laravel Storage
             $file = $request->file('avatar');
             $filename = 'customer_' . $customer->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $avatarPath = $file->storeAs('user_avatars', $filename, 'public');
 
-            // Ensure directory exists
-            $uploadDir = storage_path('app/public/user_avatars');
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
+            if ($avatarPath) {
+                $customer->update(['avatar' => $avatarPath]);
 
-            $fullPath = $uploadDir . '/' . $filename;
-            $avatarPath = 'user_avatars/' . $filename;
-
-            // Move uploaded file directly
-            if (move_uploaded_file($file->getPathname(), $fullPath)) {
-                // Also copy to public/storage for web access
-                $publicPath = public_path('storage/user_avatars/' . $filename);
-                $publicDir = dirname($publicPath);
-                if (!is_dir($publicDir)) {
-                    mkdir($publicDir, 0755, true);
-                }
-                copy($fullPath, $publicPath);
-
-                // Verify file was actually saved
-                if (file_exists($fullPath) && file_exists($publicPath)) {
-                    $customer->update(['avatar' => $avatarPath]);
-
-                    return $this->apiResponse->success(
-                        __('customer.avatar_updated_successfully'),
-                        [
-                            'customer' => new CustomerResource($customer->fresh()),
-                            'avatar_url' => $customer->fresh()->avatar_url,
-                        ]
-                    );
-                } else {
-                    return $this->apiResponse->error(__('customer.avatar_update_failed') . ': File not saved');
-                }
+                return $this->apiResponse->success(
+                    __('customer.avatar_updated_successfully'),
+                    [
+                        'customer' => new CustomerResource($customer->fresh()),
+                        'avatar_url' => $customer->fresh()->avatar_url,
+                    ]
+                );
             } else {
-                return $this->apiResponse->error(__('customer.avatar_update_failed') . ': Upload failed');
+                return $this->apiResponse->error(__('customer.avatar_update_failed'));
             }
         } catch (\Exception $e) {
             return $this->apiResponse->error(__('customer.avatar_update_failed') . ': ' . $e->getMessage());
@@ -236,16 +207,8 @@ class CustomerController extends Controller
 
         try {
             if ($customer->avatar) {
-                // Delete the avatar files from both locations
-                $storagePath = storage_path('app/public/' . $customer->avatar);
-                $publicPath = public_path('storage/' . $customer->avatar);
-
-                if (file_exists($storagePath)) {
-                    unlink($storagePath);
-                }
-                if (file_exists($publicPath)) {
-                    unlink($publicPath);
-                }
+                // Delete the avatar file using Laravel Storage
+                Storage::disk('public')->delete($customer->avatar);
 
                 // Update customer record
                 $customer->update(['avatar' => null]);
