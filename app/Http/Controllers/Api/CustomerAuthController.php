@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class CustomerAuthController extends Controller
 {
@@ -26,22 +27,38 @@ class CustomerAuthController extends Controller
     }
 
     /**
-     * Register new customer
+     * Register new customer (matches new_signup_screen.dart)
      */
     public function register(Request $request)
     {
+        // Get country code (default to +966 for Saudi Arabia)
+        $countryCode = $request->country_code ?? '+966';
+        $phoneNumber = $request->phone_number;
+
         $validator = Validator::make($request->all(), [
             'name_en' => 'required|string|max:255',
             'name_ar' => 'nullable|string|max:255',
-            'phone_number' => 'required|string|unique:customers,phone_number',
+            'phone_number' => [
+                'required',
+                'string',
+                'regex:/^[0-9]{9}$/', // Saudi mobile: 9 digits only
+                Rule::unique('customers')->where(function ($query) use ($phoneNumber, $countryCode) {
+                    return $query->where('phone_number', $phoneNumber)
+                                 ->where('country_code', $countryCode);
+                }),
+            ],
+            'country_code' => 'nullable|string|regex:/^\+[0-9]{1,4}$/', // Optional country code like +966
             'email' => 'nullable|email|unique:customers,email',
-            'preferred_language' => 'nullable|string|in:ar,en',
+            'agree_to_terms' => 'required|boolean|accepted',
         ], [
-            'name_en.required' => __('validation.required', ['attribute' => __('attributes.name_en')]),
-            'phone_number.required' => __('validation.required', ['attribute' => __('attributes.phone_number')]),
-            'phone_number.unique' => __('validation.unique', ['attribute' => __('attributes.phone_number')]),
-            'email.email' => __('validation.email', ['attribute' => __('attributes.email')]),
-            'email.unique' => __('validation.unique', ['attribute' => __('attributes.email')]),
+            'name_en.required' => 'English name is required',
+            'phone_number.required' => 'Phone number is required',
+            'phone_number.regex' => 'Phone number must be 9 digits (Saudi format)',
+            'phone_number.unique' => 'Phone number already registered with this country code',
+            'country_code.regex' => 'Country code must be in format +XXX',
+            'email.email' => 'Please enter a valid email address',
+            'email.unique' => 'Email already registered',
+            'agree_to_terms.accepted' => 'You must agree to terms and conditions',
         ]);
 
         if ($validator->fails()) {
@@ -49,11 +66,6 @@ class CustomerAuthController extends Controller
         }
 
         try {
-            // Check if phone number is already registered BEFORE creating customer
-            $existingCustomer = Customer::where('phone_number', $request->phone_number)->first();
-            if ($existingCustomer) {
-                return $this->apiResponse->error(__('validation.unique', ['attribute' => __('attributes.phone_number')]));
-            }
 
             DB::beginTransaction();
 
@@ -61,31 +73,34 @@ class CustomerAuthController extends Controller
             $customer = Customer::create([
                 'name' => [
                     'en' => $request->name_en,
-                    'ar' => $request->name_ar ?? $request->name_en,
+                    'ar' => $request->name_ar ?? $request->name_en, // Use English name if Arabic not provided
                 ],
-                'phone_number' => $request->phone_number,
+                'phone_number' => $phoneNumber,
+                'country_code' => $countryCode,
                 'email' => $request->email,
-                'preferred_language' => $request->preferred_language ?? 'ar',
+                'preferred_language' => 'en', // Default to English as per app
                 'status' => 'active',
             ]);
 
-            // Send OTP for phone verification (skip registration check since we already checked)
-            $otpResult = $this->otpService->sendOTP($request->phone_number, 'customer', 'registration', true);
+            // Send 4-digit OTP (matching the app)
+            $otpCode = str_pad(random_int(1000, 9999), 4, '0', STR_PAD_LEFT);
 
-            if (!$otpResult['success']) {
-                DB::rollBack();
-                return $this->apiResponse->error(__('registration.failed_to_send_otp') . ': ' . $otpResult['message']);
-            }
+            VerificationCode::create([
+                'phone_number' => $phoneNumber, // Store only the phone number without country code
+                'code' => $otpCode,
+                'type' => 'customer',
+                'expires_at' => now()->addMinutes(1), // 1 minute expiry
+            ]);
 
             DB::commit();
 
             return $this->apiResponse->success(
-                __('registration.customer_registered_successfully'),
+                'Registration successful. OTP sent to your phone.',
                 [
                     'customer' => new CustomerResource($customer),
-                    'verification_code' => $otpResult['data']['verification_code'], // Remove in production
-                    'expires_at' => $otpResult['data']['expires_at'],
-                    'next_step' => 'phone_verification',
+                    'verification_code' => $otpCode, // Remove in production
+                    'expires_at' => now()->addMinutes(1)->toISOString(),
+                    'next_step' => 'otp_verification',
                 ],
                 [],
                 201
@@ -131,13 +146,14 @@ class CustomerAuthController extends Controller
     }
 
     /**
-     * Verify phone number
+     * Verify OTP - matches otp_verification_screen.dart (4 digits)
      */
-    public function verifyPhone(Request $request)
+    public function verifyOTP(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'phone_number' => 'required|string|exists:customers,phone_number',
-            'code' => 'required|string|size:6|regex:/^[0-9]{6}$/',
+            'phone_number' => 'required|string',
+            'country_code' => 'nullable|string|regex:/^\+[0-9]{1,4}$/',
+            'otp' => 'required|string|size:4', // 4 digits as per app
         ]);
 
         if ($validator->fails()) {
@@ -145,52 +161,98 @@ class CustomerAuthController extends Controller
         }
 
         try {
-            DB::beginTransaction();
+            // Get country code (default to +966 for Saudi Arabia)
+            $countryCode = $request->country_code ?? '+966';
+            $phoneNumber = $request->phone_number;
 
-            $customer = Customer::where('phone_number', $request->phone_number)->first();
-
-            // Verify OTP
-            $verificationCode = VerificationCode::where('phone_number', $request->phone_number)
+            // Find verification code (stored with phone number only)
+            $verification = VerificationCode::where('phone_number', $phoneNumber)
                 ->where('type', 'customer')
-                ->where('code', $request->code)
+                ->where('code', $request->otp)
+                ->where('expires_at', '>', now())
                 ->first();
 
-            if (!$verificationCode) {
-                return $this->apiResponse->error(__('otp.invalid_code'));
+            if (!$verification) {
+                return $this->apiResponse->error('Invalid or expired OTP');
             }
 
-            if ($verificationCode->isExpired()) {
-                return $this->apiResponse->error(__('otp.expired_code'));
-            }
+            DB::beginTransaction();
 
-            // Update customer
+            // Delete verification code
+            $verification->delete();
+
+            // Update customer status and create token (search by phone_number and country_code)
+            $customer = Customer::where('phone_number', $phoneNumber)
+                ->where('country_code', $countryCode)
+                ->first();
             $customer->update([
                 'phone_verified' => true,
                 'phone_verified_at' => now(),
             ]);
 
-            // Generate authentication token
-            $token = $customer->createToken('customer-auth-token')->plainTextToken;
-
-            // Delete verification code
-            $verificationCode->delete();
+            $token = $customer->createToken('customer-token', ['customer'])->plainTextToken;
 
             DB::commit();
 
             return $this->apiResponse->success(
-                __('customer.phone_verified_successfully'),
+                'Phone verified successfully',
                 [
                     'customer' => new CustomerResource($customer),
                     'token' => $token,
+                    'next_step' => 'home', // Go to main app
                 ]
             );
+
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->apiResponse->error(__('otp.failed_to_verify') . ': ' . $e->getMessage());
+            return $this->apiResponse->error('Verification failed: ' . $e->getMessage());
         }
     }
 
+    /**
+     * Resend OTP
+     */
+    public function resendOTP(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone_number' => 'required|string',
+        ]);
 
+        if ($validator->fails()) {
+            return $this->apiResponse->validationError($validator->errors());
+        }
+
+        try {
+            $phoneNumber = $request->phone_number;
+
+            // Generate new 4-digit OTP
+            $otpCode = str_pad(random_int(1000, 9999), 4, '0', STR_PAD_LEFT);
+
+            // Delete old verification codes
+            VerificationCode::where('phone_number', $phoneNumber)
+                ->where('type', 'customer')
+                ->delete();
+
+            // Create new verification code
+            VerificationCode::create([
+                'phone_number' => $phoneNumber,
+                'code' => $otpCode,
+                'type' => 'customer',
+                'expires_at' => now()->addMinutes(1),
+            ]);
+
+            return $this->apiResponse->success(
+                'OTP resent successfully',
+                [
+                    'verification_code' => $otpCode, // Remove in production
+                    'expires_at' => now()->addMinutes(1)->toISOString(),
+                ]
+            );
+
+        } catch (\Exception $e) {
+            return $this->apiResponse->error('Failed to resend OTP: ' . $e->getMessage());
+        }
+    }
 
     /**
      * Login with phone number only (OTP-based)
@@ -445,5 +507,31 @@ class CustomerAuthController extends Controller
         $customer->delete();
 
         return $this->apiResponse->success(__('customer.account_deleted_successfully'));
+    }
+
+    /**
+     * Normalize phone number to international format (+966)
+     * Handles: +966501234567, 966501234567, 0501234567, 501234567
+     * Returns: +966501234567
+     */
+    private function normalizePhoneNumberToInternational($phoneNumber)
+    {
+        // Remove all non-numeric characters
+        $phoneNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
+
+        // Handle different formats and convert to +966 format
+        if (strlen($phoneNumber) == 13 && substr($phoneNumber, 0, 3) == '966') {
+            // 966501234567 -> +966501234567
+            return '+' . $phoneNumber;
+        } elseif (strlen($phoneNumber) == 10 && substr($phoneNumber, 0, 1) == '0') {
+            // 0501234567 -> +966501234567
+            return '+966' . substr($phoneNumber, 1);
+        } elseif (strlen($phoneNumber) == 9) {
+            // 501234567 -> +966501234567
+            return '+966' . $phoneNumber;
+        }
+
+        // Return as is if format is not recognized
+        return $phoneNumber;
     }
 }

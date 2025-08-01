@@ -41,9 +41,61 @@ return [
     |
     */
 
-    'code_length' => 6, // Length of OTP codes
-    'expiry_minutes' => 1, // OTP expiry time in minutes (registration OTP)
-    'login_expiry_minutes' => 1, // OTP expiry time for login
+    'code_length' => 4, // Default OTP length (4 digits)
+    'expiry_minutes' => 10, // Default OTP expiry time in minutes (registration OTP)
+    'login_expiry_minutes' => 5, // Default OTP expiry time for login
+
+    /*
+    |--------------------------------------------------------------------------
+    | Customer OTP Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Specific OTP settings for customers.
+    |
+    */
+
+    'customer' => [
+        'registration' => [
+            'length' => env('OTP_CUSTOMER_REGISTRATION_LENGTH', 4),
+            'include_zero' => env('OTP_CUSTOMER_REGISTRATION_INCLUDE_ZERO', true),
+            'expiry_minutes' => env('OTP_CUSTOMER_REGISTRATION_EXPIRY', 10),
+            'max_attempts' => env('OTP_CUSTOMER_REGISTRATION_MAX_ATTEMPTS', 3),
+            'resend_delay_seconds' => env('OTP_CUSTOMER_REGISTRATION_RESEND_DELAY', 60),
+        ],
+        'login' => [
+            'length' => env('OTP_CUSTOMER_LOGIN_LENGTH', 4),
+            'include_zero' => env('OTP_CUSTOMER_LOGIN_INCLUDE_ZERO', true),
+            'expiry_minutes' => env('OTP_CUSTOMER_LOGIN_EXPIRY', 5),
+            'max_attempts' => env('OTP_CUSTOMER_LOGIN_MAX_ATTEMPTS', 5),
+            'resend_delay_seconds' => env('OTP_CUSTOMER_LOGIN_RESEND_DELAY', 60),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Merchant OTP Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Specific OTP settings for merchants.
+    |
+    */
+
+    'merchant' => [
+        'registration' => [
+            'length' => env('OTP_MERCHANT_REGISTRATION_LENGTH', 4),
+            'include_zero' => env('OTP_MERCHANT_REGISTRATION_INCLUDE_ZERO', true),
+            'expiry_minutes' => env('OTP_MERCHANT_REGISTRATION_EXPIRY', 10),
+            'max_attempts' => env('OTP_MERCHANT_REGISTRATION_MAX_ATTEMPTS', 3),
+            'resend_delay_seconds' => env('OTP_MERCHANT_REGISTRATION_RESEND_DELAY', 60),
+        ],
+        'login' => [
+            'length' => env('OTP_MERCHANT_LOGIN_LENGTH', 4),
+            'include_zero' => env('OTP_MERCHANT_LOGIN_INCLUDE_ZERO', true),
+            'expiry_minutes' => env('OTP_MERCHANT_LOGIN_EXPIRY', 5),
+            'max_attempts' => env('OTP_MERCHANT_LOGIN_MAX_ATTEMPTS', 5),
+            'resend_delay_seconds' => env('OTP_MERCHANT_LOGIN_RESEND_DELAY', 60),
+        ],
+    ],
 
     /*
     |--------------------------------------------------------------------------

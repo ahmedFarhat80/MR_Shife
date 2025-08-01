@@ -22,6 +22,7 @@ class Product extends Model
     protected $fillable = [
         'merchant_id',
         'internal_category_id',
+        'sub_category_id',
         'food_nationality_id',
         'name',
         'description',
@@ -41,6 +42,9 @@ class Product extends Model
         'is_gluten_free',
         'is_spicy',
         'is_featured',
+        'is_popular',
+        'total_orders',
+        'average_rating',
         'sort_order',
         'stock_quantity',
         'track_stock',
@@ -77,7 +81,10 @@ class Product extends Model
             'is_spicy' => 'boolean',
             'is_available' => 'boolean',
             'is_featured' => 'boolean',
+            'is_popular' => 'boolean',
             'track_stock' => 'boolean',
+            'total_orders' => 'integer',
+            'average_rating' => 'decimal:2',
             'preparation_time' => 'integer',
             'calories' => 'integer',
             'sort_order' => 'integer',
@@ -102,11 +109,43 @@ class Product extends Model
     }
 
     /**
+     * Alias for internalCategory relationship (for backward compatibility).
+     */
+    public function internal_category(): BelongsTo
+    {
+        return $this->internalCategory();
+    }
+
+    /**
      * Get the food nationality that owns the product.
      */
     public function foodNationality(): BelongsTo
     {
         return $this->belongsTo(FoodNationality::class);
+    }
+
+    /**
+     * Alias for foodNationality relationship (for backward compatibility).
+     */
+    public function food_nationality(): BelongsTo
+    {
+        return $this->foodNationality();
+    }
+
+    /**
+     * Get the sub category that owns the product.
+     */
+    public function subCategory(): BelongsTo
+    {
+        return $this->belongsTo(InternalCategory::class, 'sub_category_id');
+    }
+
+    /**
+     * Alias for subCategory relationship (for backward compatibility).
+     */
+    public function sub_category(): BelongsTo
+    {
+        return $this->subCategory();
     }
 
     /**
@@ -139,6 +178,14 @@ class Product extends Model
     public function activeOptionGroups(): HasMany
     {
         return $this->hasMany(OptionGroup::class)->where('is_active', true);
+    }
+
+    /**
+     * Alias for optionGroups relationship (for backward compatibility).
+     */
+    public function option_groups(): HasMany
+    {
+        return $this->optionGroups();
     }
 
     /**
@@ -178,11 +225,11 @@ class Product extends Model
      */
     public function getMainImageUrlAttribute(): ?string
     {
-        $images = $this->images;
-        if (is_array($images) && count($images) > 0) {
-            return asset('storage/' . $images[0]);
+        $firstImage = $this->images()->first();
+        if ($firstImage && $firstImage->image_url) {
+            return $firstImage->image_url;
         }
-        return null;
+        return '/images/placeholder-product.jpg';
     }
 
     /**
@@ -190,11 +237,9 @@ class Product extends Model
      */
     public function getImageUrlsAttribute(): array
     {
-        $images = $this->images;
-        if (is_array($images)) {
-            return array_map(fn($image) => asset('storage/' . $image), $images);
-        }
-        return [];
+        return $this->images()->get()->map(function ($image) {
+            return $image->image_url;
+        })->toArray();
     }
 
     /**
@@ -310,8 +355,9 @@ class Product extends Model
      */
     public function getPrimaryImageUrl(): string
     {
-        if ($this->images && is_array($this->images) && count($this->images) > 0) {
-            return ImageHelper::getUrl($this->images[0]);
+        $firstImage = $this->images()->first();
+        if ($firstImage && $firstImage->image_url) {
+            return $firstImage->image_url;
         }
 
         // Return default food image
@@ -323,11 +369,14 @@ class Product extends Model
      */
     public function getImageUrls(): array
     {
-        if (!$this->images || !is_array($this->images) || count($this->images) === 0) {
+        $images = $this->images()->get();
+        if ($images->count() === 0) {
             return [$this->getPrimaryImageUrl()];
         }
 
-        return array_map(fn($image) => ImageHelper::getUrl($image), $this->images);
+        return $images->map(function ($image) {
+            return $image->image_url;
+        })->toArray();
     }
 
     /**
@@ -458,16 +507,5 @@ class Product extends Model
         return $this->is_featured && $this->average_rating >= 4.5;
     }
 
-    /**
-     * Get images attribute (for compatibility).
-     */
-    public function getImagesAttribute()
-    {
-        // This should return the actual images from database
-        // For now, return mock data
-        return [
-            'product_' . $this->id . '_1.jpg',
-            'product_' . $this->id . '_2.jpg',
-        ];
-    }
+
 }

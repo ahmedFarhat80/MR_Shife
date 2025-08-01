@@ -311,7 +311,7 @@ class MerchantRegistrationService
 
             return [
                 'success' => true,
-                'message' => $subscriptionPlan->price > 0 
+                'message' => $subscriptionPlan->price > 0
                     ? __('subscription.payment_required')
                     : __('subscription.created_successfully'),
                 'data' => [
@@ -423,7 +423,7 @@ class MerchantRegistrationService
                         'public',
                         $merchant->{$field} ?? null
                     );
-                    
+
                     if ($uploadResult['success']) {
                         $uploadedFiles[$field] = $uploadResult['path'];
                         $data[$field] = $uploadResult['path'];
@@ -498,7 +498,7 @@ class MerchantRegistrationService
                     'public',
                     $merchant->business_logo
                 );
-                
+
                 if ($uploadResult['success']) {
                     $data['business_logo'] = $uploadResult['main_path'];
                 } else {
@@ -516,7 +516,6 @@ class MerchantRegistrationService
                 'business_hours' => $data['business_hours'] ?? null,
                 'business_phone' => $data['business_phone'] ?? null,
                 'business_email' => $data['business_email'] ?? null,
-                'social_media' => $data['social_media'] ?? null,
             ]);
 
             // Mark business profile step as completed
@@ -645,4 +644,4 @@ class MerchantRegistrationService
             default => $start->addMonth(),
         };
     }
-} 
+}

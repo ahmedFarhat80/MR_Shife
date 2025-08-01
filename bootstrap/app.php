@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'set.locale' => \App\Http\Middleware\SetLocale::class,
             'performance.monitor' => \App\Http\Middleware\PerformanceMonitorMiddleware::class,
             'storage.cors' => \App\Http\Middleware\HandleStorageCors::class,
+            'merchant.onboarding' => \App\Http\Middleware\EnsureMerchantOnboardingComplete::class,
         ]);
 
         // Add middleware to web routes for Filament

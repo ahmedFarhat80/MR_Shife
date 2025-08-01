@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Helpers\TranslationHelper;
 
 class ProductResource extends JsonResource
 {
@@ -18,16 +19,10 @@ class ProductResource extends JsonResource
             'id' => $this->id,
             'category_id' => $this->category_id,
             'category' => new CategoryResource($this->whenLoaded('category')),
-            'name' => [
-                'en' => $this->getTranslation('name', 'en'),
-                'ar' => $this->getTranslation('name', 'ar'),
-                'current' => $this->name,
-            ],
-            'description' => $this->when($this->description, [
-                'en' => $this->getTranslation('description', 'en'),
-                'ar' => $this->getTranslation('description', 'ar'),
-                'current' => $this->description,
-            ]),
+            'name' => TranslationHelper::formatTranslatable($this, 'name'),
+            'description' => $this->when($this->description,
+                TranslationHelper::formatTranslatable($this, 'description')
+            ),
             'price' => [
                 'amount' => (float) $this->price,
                 'formatted' => number_format($this->price, 2),

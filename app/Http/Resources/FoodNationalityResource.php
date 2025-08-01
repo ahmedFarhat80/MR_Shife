@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Helpers\TranslationHelper;
 
-class CategoryResource extends JsonResource
+class FoodNationalityResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,16 +18,13 @@ class CategoryResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => TranslationHelper::formatTranslatable($this, 'name'),
-            'description' => $this->when($this->description,
+            'description' => $this->when($this->description, 
                 TranslationHelper::formatTranslatable($this, 'description')
             ),
-            'image' => $this->image_url,
-            'sort_order' => $this->sort_order,
+            'icon' => $this->icon,
+            'icon_url' => $this->icon_url,
             'is_active' => $this->is_active,
-            'products_count' => $this->when(isset($this->products_count), $this->products_count),
-            'active_products_count' => $this->when(isset($this->active_products_count), $this->active_products_count),
-            'products' => ProductResource::collection($this->whenLoaded('products')),
-            'active_products' => ProductResource::collection($this->whenLoaded('activeProducts')),
+            'sort_order' => $this->sort_order,
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),
         ];

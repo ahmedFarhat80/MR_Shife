@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Helpers\TranslationHelper;
 
 class MerchantResource extends JsonResource
 {
@@ -18,11 +19,7 @@ class MerchantResource extends JsonResource
             'id' => $this->id,
 
             // Basic Information
-            'name' => [
-                'en' => $this->getTranslation('name', 'en'),
-                'ar' => $this->getTranslation('name', 'ar'),
-                'current' => $this->name,
-            ],
+            'name' => TranslationHelper::formatTranslatableWithUserPreference($this, 'name', $this),
             'phone_number' => $this->phone_number,
             'email' => $this->email,
             'is_phone_verified' => $this->is_phone_verified,
@@ -51,16 +48,8 @@ class MerchantResource extends JsonResource
 
             // Business Information
             'business' => [
-                'name' => [
-                    'en' => $this->getTranslation('business_name', 'en'),
-                    'ar' => $this->getTranslation('business_name', 'ar'),
-                    'current' => $this->business_name,
-                ],
-                'address' => [
-                    'en' => $this->getTranslation('business_address', 'en'),
-                    'ar' => $this->getTranslation('business_address', 'ar'),
-                    'current' => $this->business_address,
-                ],
+                'name' => TranslationHelper::formatTranslatableWithUserPreference($this, 'business_name', $this),
+                'address' => TranslationHelper::formatTranslatableWithUserPreference($this, 'business_address', $this),
                 'type' => $this->business_type,
                 'commercial_registration_number' => $this->commercial_registration_number,
                 'phone' => $this->business_phone,
@@ -89,24 +78,17 @@ class MerchantResource extends JsonResource
                     'path' => $this->business_logo,
                     'url' => $this->business_logo_url,
                 ] : null,
-                'description' => $this->business_description ? [
-                    'en' => $this->getTranslation('business_description', 'en'),
-                    'ar' => $this->getTranslation('business_description', 'ar'),
-                    'current' => $this->business_description,
-                ] : null,
+                'description' => $this->business_description ?
+                    TranslationHelper::formatTranslatableWithUserPreference($this, 'business_description', $this) : null,
                 'hours' => $this->business_hours,
-                'social_media' => $this->social_media,
             ],
 
             // Location Information
             'location' => [
                 'latitude' => $this->location_latitude,
                 'longitude' => $this->location_longitude,
-                'address' => $this->location_address ? [
-                    'en' => $this->getTranslation('location_address', 'en'),
-                    'ar' => $this->getTranslation('location_address', 'ar'),
-                    'current' => $this->location_address,
-                ] : null,
+                'address' => $this->location_address ?
+                    TranslationHelper::formatTranslatableWithUserPreference($this, 'location_address', $this) : null,
                 'city' => $this->location_city,
                 'area' => $this->location_area,
                 'building' => $this->location_building,

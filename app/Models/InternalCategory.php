@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Translatable\HasTranslations;
 use App\Helpers\ImageHelper;
 use Illuminate\Support\Facades\Log;
@@ -20,6 +21,8 @@ class InternalCategory extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'parent_id',
+        'level',
         'name',
         'description',
         'image',
@@ -47,6 +50,7 @@ class InternalCategory extends Model
         return [
             'is_active' => 'boolean',
             'sort_order' => 'integer',
+            'level' => 'integer',
         ];
     }
 
@@ -89,6 +93,22 @@ class InternalCategory extends Model
     }
 
     /**
+     * Get the parent category (for sub-categories).
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(InternalCategory::class, 'parent_id');
+    }
+
+    /**
+     * Get the child categories (for main categories).
+     */
+    public function children(): HasMany
+    {
+        return $this->hasMany(InternalCategory::class, 'parent_id');
+    }
+
+    /**
      * Get the products for this category.
      */
     public function products(): HasMany
@@ -110,6 +130,30 @@ class InternalCategory extends Model
     public function scopeOrdered($query)
     {
         return $query->orderBy('sort_order')->orderBy('name');
+    }
+
+    /**
+     * Scope to get only main categories (level 0).
+     */
+    public function scopeMainCategories($query)
+    {
+        return $query->where('level', 0)->whereNull('parent_id');
+    }
+
+    /**
+     * Scope to get only sub categories (level 1).
+     */
+    public function scopeSubCategories($query)
+    {
+        return $query->where('level', 1)->whereNotNull('parent_id');
+    }
+
+    /**
+     * Scope to get categories by level.
+     */
+    public function scopeByLevel($query, $level)
+    {
+        return $query->where('level', $level);
     }
 
 

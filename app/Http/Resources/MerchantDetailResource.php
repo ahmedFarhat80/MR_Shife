@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Helpers\ImageHelper;
+use App\Helpers\TranslationHelper;
 
 class MerchantDetailResource extends JsonResource
 {
@@ -19,9 +20,9 @@ class MerchantDetailResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'name' => $this->getTranslation('name', $language),
-            'business_name' => $this->getTranslation('business_name', $language),
-            'description' => $this->getTranslation('business_description', $language),
+            'name' => TranslationHelper::formatTranslatable($this, 'name'),
+            'business_name' => TranslationHelper::formatTranslatable($this, 'business_name'),
+            'description' => TranslationHelper::formatTranslatable($this, 'business_description'),
             'business_type' => $this->business_type,
 
             // Images
@@ -33,7 +34,7 @@ class MerchantDetailResource extends JsonResource
 
             // Location & Delivery Info
             'location' => [
-                'address' => $this->getTranslation('location_address', $language),
+                'address' => TranslationHelper::formatTranslatable($this, 'location_address'),
                 'city' => $this->location_city,
                 'area' => $this->location_area,
                 'postal_code' => $this->location_postal_code,
@@ -68,7 +69,6 @@ class MerchantDetailResource extends JsonResource
             'contact' => [
                 'phone' => $this->business_phone,
                 'email' => $this->business_email,
-                'social_media' => $this->social_media,
             ],
 
             // Categories

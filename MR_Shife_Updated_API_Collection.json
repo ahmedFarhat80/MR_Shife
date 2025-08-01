@@ -1,0 +1,1803 @@
+{
+	"info": {
+		"_postman_id": "mr-shife-updated-collection-2025",
+		"name": "🍽️ MR Shife API - Updated Collection",
+		"description": "مجموعة API محدثة ومكتملة لمشروع مستر شيف\n\n📋 **الهيكل المنظم:**\n• 🏪 **Merchant** - كل ما يخص التجار (تسجيل، onboarding، إدارة)\n• 👤 **Customer** - كل ما يخص العملاء (تسجيل، تسوق، طلبات)\n• 🔧 **Shared** - الخدمات المشتركة (معلومات المستخدم، تسجيل الخروج)\n\n🎯 **التحديثات الجديدة:**\n• ✅ Cart Management كامل\n• ✅ Orders & Checkout\n• ✅ Favorites System\n• ✅ Profile Management\n• ✅ Product Options & Sizes\n• ✅ Response Examples شاملة\n• ✅ دعم الترجمة الكامل (عربي/إنجليزي)\n• ✅ إدارة التوكن التلقائية",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🏪 Merchant",
+			"description": "كل ما يخص التجار - التسجيل، Onboarding، الإدارة، والعمليات التجارية",
+			"item": [
+				{
+					"name": "🔐 Auth",
+					"description": "تسجيل وتسجيل دخول التجار",
+					"item": [
+						{
+							"name": "Register Merchant",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"english_full_name\": \"Al Salam Restaurant\",\n    \"arabic_full_name\": \"مطعم السلام\",\n    \"phone_number\": \"{{merchant_phone}}\",\n    \"country_code\": \"{{country_code}}\",\n    \"email\": \"{{merchant_email}}\",\n    \"business_name_en\": \"Al Salam Traditional Restaurant\",\n    \"business_name_ar\": \"مطعم السلام للأكلات الشعبية\",\n    \"business_type\": \"restaurant\",\n    \"preferred_language\": \"ar\",\n    \"agree_to_terms\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/register",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"register"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200 || pm.response.code === 201) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.verification_code) {",
+											"        pm.environment.set('merchant_otp', responseJson.data.verification_code);",
+											"        console.log('Merchant OTP saved:', responseJson.data.verification_code);",
+											"    }",
+											"    if (responseJson.data && responseJson.data.merchant && responseJson.data.merchant.id) {",
+											"        pm.environment.set('merchant_id', responseJson.data.merchant.id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "Verify Merchant OTP",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{merchant_phone}}\",\n    \"country_code\": \"{{country_code}}\",\n    \"otp\": \"{{merchant_otp}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/verify-otp",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"verify-otp"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.token) {",
+											"        pm.environment.set('merchant_token', responseJson.data.token);",
+											"        pm.environment.set('auth_token', responseJson.data.token);",
+											"        console.log('Merchant token saved:', responseJson.data.token);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "Resend Merchant OTP",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{merchant_phone}}\",\n    \"country_code\": \"{{country_code}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/resend-otp",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"resend-otp"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.verification_code) {",
+											"        pm.environment.set('merchant_otp', responseJson.data.verification_code);",
+											"        console.log('New Merchant OTP saved:', responseJson.data.verification_code);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "Send Login OTP",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{merchant_phone}}\",\n    \"country_code\": \"{{country_code}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/send-login-otp",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"send-login-otp"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.verification_code) {",
+											"        pm.environment.set('merchant_otp', responseJson.data.verification_code);",
+											"        console.log('Login OTP saved:', responseJson.data.verification_code);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "Verify Login OTP",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{merchant_phone}}\",\n    \"country_code\": \"{{country_code}}\",\n    \"otp\": \"{{merchant_otp}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/verify-login-otp",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"verify-login-otp"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.token) {",
+											"        pm.environment.set('merchant_token', responseJson.data.token);",
+											"        pm.environment.set('auth_token', responseJson.data.token);",
+											"        console.log('Merchant login token saved:', responseJson.data.token);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"response": []
+						},
+
+						{
+							"name": "Delete Account",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{merchant_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"password\": \"current123\",\n    \"confirmation\": \"DELETE\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/delete-account",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"delete-account"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    pm.environment.set('merchant_token', '');",
+											"    pm.environment.set('auth_token', '');",
+											"    console.log('Merchant account deleted, tokens cleared');",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "👤 Profile Management",
+					"description": "إدارة الملف الشخصي للتاجر",
+					"item": [
+						{
+							"name": "Get Merchant Profile",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{merchant_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/merchant/profile",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Merchant Profile",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{merchant_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"business_name\": \"مطعم السلام للأكلات الشعبية المحدث\",\n    \"business_name_en\": \"Al Salam Traditional Restaurant Updated\",\n    \"description\": \"أفضل مطعم للأكلات الشعبية في الرياض\",\n    \"description_en\": \"Best traditional restaurant in Riyadh\",\n    \"phone_number\": \"{{merchant_phone}}\",\n    \"email\": \"{{merchant_email}}\",\n    \"address\": {\n        \"street\": \"طريق الملك فهد\",\n        \"building\": \"مبنى 123\",\n        \"city\": \"الرياض\",\n        \"district\": \"العليا\",\n        \"postal_code\": \"12345\",\n        \"latitude\": 24.7136,\n        \"longitude\": 46.6753\n    },\n    \"working_hours\": {\n        \"saturday\": {\"open\": \"11:00\", \"close\": \"23:00\", \"is_open\": true},\n        \"sunday\": {\"open\": \"11:00\", \"close\": \"23:00\", \"is_open\": true},\n        \"monday\": {\"open\": \"11:00\", \"close\": \"23:00\", \"is_open\": true},\n        \"tuesday\": {\"open\": \"11:00\", \"close\": \"23:00\", \"is_open\": true},\n        \"wednesday\": {\"open\": \"11:00\", \"close\": \"23:00\", \"is_open\": true},\n        \"thursday\": {\"open\": \"11:00\", \"close\": \"23:00\", \"is_open\": true},\n        \"friday\": {\"open\": \"14:00\", \"close\": \"23:00\", \"is_open\": true}\n    },\n    \"delivery_fee\": 8.00,\n    \"minimum_order\": 30.00,\n    \"estimated_delivery_time\": 25\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/profile",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Upload Merchant Avatar",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{merchant_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "avatar",
+											"type": "file",
+											"src": []
+										}
+									]
+								},
+								"url": {
+									"raw": "{{Local_MR}}/merchant/profile/avatar",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"merchant",
+										"profile",
+										"avatar"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "👤 Customer",
+			"description": "كل ما يخص العملاء - التسجيل، التسوق، الطلبات، والملف الشخصي",
+			"item": [
+				{
+					"name": "🔐 Auth",
+					"description": "تسجيل وتسجيل دخول العملاء",
+					"item": [
+						{
+							"name": "Register Customer",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name_en\": \"Ahmed Al-Rashid\",\n    \"name_ar\": \"أحمد الراشد\",\n    \"phone_number\": \"{{customer_phone}}\",\n    \"country_code\": \"{{country_code}}\",\n    \"email\": \"{{customer_email}}\",\n    \"preferred_language\": \"ar\",\n    \"date_of_birth\": \"1985-03-15\",\n    \"gender\": \"male\",\n    \"agree_to_terms\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/register",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"register"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200 || pm.response.code === 201) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.verification_code) {",
+											"        pm.environment.set('customer_otp', responseJson.data.verification_code);",
+											"        console.log('Customer OTP saved:', responseJson.data.verification_code);",
+											"    }",
+											"    if (responseJson.data && responseJson.data.customer && responseJson.data.customer.id) {",
+											"        pm.environment.set('customer_id', responseJson.data.customer.id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "Verify Customer OTP",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{customer_phone}}\",\n    \"country_code\": \"{{country_code}}\",\n    \"otp\": \"{{customer_otp}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/verify-otp",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"verify-otp"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.token) {",
+											"        pm.environment.set('customer_token', responseJson.data.token);",
+											"        pm.environment.set('auth_token', responseJson.data.token);",
+											"        console.log('Customer token saved:', responseJson.data.token);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "Resend Customer OTP",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{customer_phone}}\",\n    \"country_code\": \"{{country_code}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/resend-otp",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"resend-otp"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.verification_code) {",
+											"        pm.environment.set('customer_otp', responseJson.data.verification_code);",
+											"        console.log('New Customer OTP saved:', responseJson.data.verification_code);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "Send Login OTP",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{customer_phone}}\",\n    \"country_code\": \"{{country_code}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/send-login-otp",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"send-login-otp"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.verification_code) {",
+											"        pm.environment.set('customer_otp', responseJson.data.verification_code);",
+											"        console.log('Customer Login OTP saved:', responseJson.data.verification_code);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"response": []
+						},
+						{
+							"name": "Verify Login OTP",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"phone_number\": \"{{customer_phone}}\",\n    \"country_code\": \"{{country_code}}\",\n    \"otp\": \"{{customer_otp}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/verify-login-otp",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"verify-login-otp"
+									]
+								}
+							},
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const responseJson = pm.response.json();",
+											"    if (responseJson.data && responseJson.data.token) {",
+											"        pm.environment.set('customer_token', responseJson.data.token);",
+											"        pm.environment.set('auth_token', responseJson.data.token);",
+											"        console.log('Customer login token saved:', responseJson.data.token);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "👤 Profile Management",
+					"description": "إدارة الملف الشخصي للعميل",
+					"item": [
+						{
+							"name": "Get Customer Profile",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/profile",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Customer Profile",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name_ar\": \"أحمد الراشد المحدث\",\n    \"name_en\": \"Ahmed Al-Rashid Updated\",\n    \"email\": \"{{customer_email}}\",\n    \"phone_number\": \"{{customer_phone}}\",\n    \"date_of_birth\": \"1985-03-15\",\n    \"gender\": \"male\",\n    \"preferred_language\": \"ar\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/profile",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Upload Customer Avatar",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "avatar",
+											"type": "file",
+											"src": []
+										}
+									]
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/profile/avatar",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"profile",
+										"avatar"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Customer Addresses",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/profile/addresses",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"profile",
+										"addresses"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add Customer Address",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"المنزل\",\n    \"title_en\": \"Home\",\n    \"address_line\": \"مبنى 123، طريق الملك عبدالعزيز\",\n    \"address_line_en\": \"Building 123, King Abdulaziz Road\",\n    \"street\": \"طريق الملك عبدالعزيز\",\n    \"building\": \"مبنى 123\",\n    \"building_ar\": \"مبنى 123\",\n    \"floor\": \"الطابق الثالث\",\n    \"floor_ar\": \"الطابق الثالث\",\n    \"apartment\": \"شقة 301\",\n    \"apartment_ar\": \"شقة 301\",\n    \"city\": \"الرياض\",\n    \"city_ar\": \"الرياض\",\n    \"area\": \"الملز\",\n    \"area_ar\": \"الملز\",\n    \"postal_code\": \"12345\",\n    \"latitude\": 24.6877,\n    \"longitude\": 46.7219,\n    \"notes\": \"بالقرب من المدخل الرئيسي، المبنى الأزرق\",\n    \"notes_ar\": \"بالقرب من المدخل الرئيسي، المبنى الأزرق\",\n    \"is_default\": true,\n    \"delivery_instructions\": \"يرجى الاتصال عند الوصول\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/profile/addresses",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"profile",
+										"addresses"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Customer Address",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"العمل\",\n    \"title_en\": \"Work\",\n    \"address_line\": \"برج المكاتب، طريق الملك فهد\",\n    \"address_line_en\": \"Office Tower, King Fahd Road\",\n    \"street\": \"طريق الملك فهد\",\n    \"building\": \"برج المكاتب\",\n    \"building_ar\": \"برج المكاتب\",\n    \"floor\": \"الطابق الخامس عشر\",\n    \"floor_ar\": \"الطابق الخامس عشر\",\n    \"apartment\": \"مكتب 1502\",\n    \"apartment_ar\": \"مكتب 1502\",\n    \"city\": \"الرياض\",\n    \"city_ar\": \"الرياض\",\n    \"area\": \"العليا\",\n    \"area_ar\": \"العليا\",\n    \"latitude\": 24.7136,\n    \"longitude\": 46.6753,\n    \"notes\": \"عنوان العمل - متاح من 9 صباحاً إلى 6 مساءً\",\n    \"notes_ar\": \"عنوان العمل - متاح من 9 صباحاً إلى 6 مساءً\",\n    \"is_default\": false\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/profile/addresses/1",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"profile",
+										"addresses",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Customer Address",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/profile/addresses/1",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"profile",
+										"addresses",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "🛍️ Shopping",
+					"description": "التسوق والمنتجات - محدث مع الخيارات والأحجام",
+					"item": [
+						{
+							"name": "Get All Products",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/shopping/products?per_page=20&sort_by=created_at&sort_order=desc",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"shopping",
+										"products"
+									],
+									"query": [
+										{
+											"key": "per_page",
+											"value": "20"
+										},
+										{
+											"key": "sort_by",
+											"value": "created_at"
+										},
+										{
+											"key": "sort_order",
+											"value": "desc"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success Response",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{Local_MR}}/customer/shopping/products",
+											"host": [
+												"{{Local_MR}}"
+											],
+											"path": [
+												"customer",
+												"shopping",
+												"products"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [],
+									"cookie": [],
+									"body": "{\n    \"success\": true,\n    \"message\": \"Products retrieved successfully\",\n    \"data\": {\n        \"products\": [\n            {\n                \"id\": 1,\n                \"name\": \"برجر الدجاج الكلاسيكي\",\n                \"description\": \"برجر دجاج طازج مع الخضروات\",\n                \"price\": 25.50,\n                \"originalPrice\": null,\n                \"image\": \"/storage/products/burger.jpg\",\n                \"rating\": 4.5,\n                \"reviewCount\": 120,\n                \"productCode\": \"PRD-001\",\n                \"sizes\": [\n                    {\n                        \"id\": 1,\n                        \"name\": \"عادي\",\n                        \"price_modifier\": 0.00,\n                        \"is_available\": true\n                    },\n                    {\n                        \"id\": 2,\n                        \"name\": \"كبير\",\n                        \"price_modifier\": 5.00,\n                        \"is_available\": true\n                    }\n                ],\n                \"additionalOptions\": [\n                    {\n                        \"id\": 1,\n                        \"name\": \"درجة النضج\",\n                        \"type\": \"customization\",\n                        \"is_required\": true,\n                        \"min_selections\": 1,\n                        \"max_selections\": 1,\n                        \"options\": [\n                            {\n                                \"id\": 1,\n                                \"name\": \"متوسط النضج\",\n                                \"price_modifier\": 0.00,\n                                \"is_available\": true\n                            }\n                        ]\n                    }\n                ],\n                \"internal_category\": {\n                    \"id\": 1,\n                    \"name\": \"الأطباق الرئيسية\"\n                },\n                \"merchant\": {\n                    \"id\": 1,\n                    \"name\": \"مطعم الذواقة\"\n                }\n            }\n        ],\n        \"pagination\": {\n            \"current_page\": 1,\n            \"last_page\": 5,\n            \"per_page\": 20,\n            \"total\": 100,\n            \"has_more\": true\n        }\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Get Product Details",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/shopping/products/1",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"shopping",
+										"products",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Search Products",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/shopping/search?q=burger&per_page=20",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"shopping",
+										"search"
+									],
+									"query": [
+										{
+											"key": "q",
+											"value": "burger"
+										},
+										{
+											"key": "per_page",
+											"value": "20"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "🛒 Cart Management",
+					"description": "إدارة السلة - إضافة، تعديل، حذف المنتجات",
+					"item": [
+						{
+							"name": "Get Cart",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/shopping/cart",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"shopping",
+										"cart"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add to Cart",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"product_id\": 1,\n    \"quantity\": 2,\n    \"selected_options\": {\n        \"size\": {\n            \"option_id\": 2,\n            \"name\": \"كبير\",\n            \"price_modifier\": 5.00\n        },\n        \"cooking_level\": {\n            \"option_id\": 4,\n            \"name\": \"متوسط النضج\",\n            \"price_modifier\": 0.00\n        },\n        \"addons\": [\n            {\n                \"option_id\": 6,\n                \"name\": \"جبن شيدر\",\n                \"price_modifier\": 3.00\n            }\n        ]\n    },\n    \"special_instructions\": \"بدون بصل من فضلك\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/shopping/cart/add",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"shopping",
+										"cart",
+										"add"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Cart Item",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"quantity\": 3\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/shopping/cart/1",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"shopping",
+										"cart",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove from Cart",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/shopping/cart/1",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"shopping",
+										"cart",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Clear Cart",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/shopping/cart",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"shopping",
+										"cart"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "📦 Orders",
+					"description": "إدارة الطلبات - الدفع، التتبع، التقييم",
+					"item": [
+						{
+							"name": "Checkout",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"delivery_address\": {\n        \"street\": \"شارع الملك فهد\",\n        \"building\": \"مبنى 123\",\n        \"floor\": \"الطابق الثاني\",\n        \"apartment\": \"شقة 5\",\n        \"city\": \"الرياض\",\n        \"district\": \"العليا\",\n        \"postal_code\": \"12345\",\n        \"latitude\": 24.7136,\n        \"longitude\": 46.6753\n    },\n    \"payment_method\": \"cash\",\n    \"delivery_notes\": \"يرجى الاتصال عند الوصول\",\n    \"delivery_time\": \"asap\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{Local_MR}}/customer/shopping/checkout",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"shopping",
+										"checkout"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get My Orders",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/shopping/orders?status=all&per_page=20",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"shopping",
+										"orders"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "all"
+										},
+										{
+											"key": "per_page",
+											"value": "20"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Order Details",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/shopping/orders/1",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"shopping",
+										"orders",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "❤️ Favorites",
+					"description": "إدارة المفضلة - منتجات ومطاعم",
+					"item": [
+						{
+							"name": "Get Favorites",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/shopping/favorites?type=all",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"shopping",
+										"favorites"
+									],
+									"query": [
+										{
+											"key": "type",
+											"value": "all"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add to Favorites",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/shopping/favorites/product/1",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"shopping",
+										"favorites",
+										"product",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove from Favorites",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{customer_token}}"
+									},
+									{
+										"key": "X-Language",
+										"value": "{{language}}"
+									}
+								],
+								"url": {
+									"raw": "{{Local_MR}}/customer/shopping/favorites/product/1",
+									"host": [
+										"{{Local_MR}}"
+									],
+									"path": [
+										"customer",
+										"shopping",
+										"favorites",
+										"product",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "🔧 Shared",
+			"description": "الخدمات المشتركة بين التجار والعملاء",
+			"item": [
+				{
+					"name": "Get User Info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "X-Language",
+								"value": "{{language}}"
+							}
+						],
+						"url": {
+							"raw": "{{Local_MR}}/user",
+							"host": [
+								"{{Local_MR}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "X-Language",
+								"value": "{{language}}"
+							}
+						],
+						"url": {
+							"raw": "{{Local_MR}}/logout",
+							"host": [
+								"{{Local_MR}}"
+							],
+							"path": [
+								"logout"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.environment.set('auth_token', '');",
+									"    pm.environment.set('customer_token', '');",
+									"    pm.environment.set('merchant_token', '');",
+									"    console.log('All tokens cleared');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-set language header if not present",
+					"if (!pm.request.headers.has('X-Language')) {",
+					"    pm.request.headers.add({",
+					"        key: 'X-Language',",
+					"        value: pm.environment.get('language') || 'ar'",
+					"    });",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Log response for debugging",
+					"if (pm.response.code >= 400) {",
+					"    console.log('❌ Request failed:', pm.response.code, pm.response.status);",
+					"    console.log('Response:', pm.response.text());",
+					"} else {",
+					"    console.log('✅ Request successful:', pm.response.code, pm.response.status);",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "Local_MR",
+			"value": "http://127.0.0.1:8000/api",
+			"type": "string"
+		},
+		{
+			"key": "language",
+			"value": "ar",
+			"type": "string"
+		},
+		{
+			"key": "customer_phone",
+			"value": "501111111",
+			"type": "string",
+			"description": "أحمد الراشد - العميل الأول (بدون مقدمة الدولة)"
+		},
+		{
+			"key": "customer_phone_2",
+			"value": "502222222",
+			"type": "string",
+			"description": "سارة جونسون - العميل الثاني (بدون مقدمة الدولة)"
+		},
+		{
+			"key": "customer_email",
+			"value": "ahmed.rashid@gmail.com",
+			"type": "string",
+			"description": "بريد العميل الأول"
+		},
+		{
+			"key": "customer_email_2",
+			"value": "sarah.johnson@outlook.com",
+			"type": "string",
+			"description": "بريد العميل الثاني"
+		},
+		{
+			"key": "merchant_phone",
+			"value": "501234567",
+			"type": "string",
+			"description": "مطعم السلام للأكلات الشعبية (بدون مقدمة الدولة)"
+		},
+		{
+			"key": "merchant_phone_2",
+			"value": "507654321",
+			"type": "string",
+			"description": "مقهى ركن القهوة المتخصص (بدون مقدمة الدولة)"
+		},
+		{
+			"key": "merchant_email",
+			"value": "info@alsalam-restaurant.com",
+			"type": "string",
+			"description": "بريد التاجر الأول"
+		},
+		{
+			"key": "merchant_email_2",
+			"value": "hello@coffeecorner.sa",
+			"type": "string",
+			"description": "بريد التاجر الثاني"
+		},
+		{
+			"key": "country_code",
+			"value": "+966",
+			"type": "string"
+		},
+		{
+			"key": "customer_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "merchant_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "customer_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "merchant_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "customer_otp",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "merchant_otp",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

@@ -3,144 +3,109 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CustomerAuthController;
 use App\Http\Controllers\Api\CustomerController;
-use App\Http\Controllers\Api\MobileApiController;
+use App\Http\Controllers\Api\PasswordlessLoginController;
 
 /*
 |--------------------------------------------------------------------------
 | Customer API Routes
 |--------------------------------------------------------------------------
 |
-| Here are the API routes for customer authentication, profile management,
-| and customer-specific functionality.
+| كل ما يخص العملاء - التسجيل، تسجيل الدخول، الملف الشخصي، التسوق، والطلبات
+| All customer-related routes - registration, login, profile, shopping, orders
 |
 */
 
-// Public customer routes (no authentication required)
-Route::prefix('customer')->group(function () {
-    Route::prefix('auth')->name('api.customer.auth.')->group(function () {
-        // Registration and authentication
-        Route::post('/register', [CustomerAuthController::class, 'register'])->name('register');
-        Route::post('/send-phone-verification', [CustomerAuthController::class, 'sendPhoneVerification'])->name('send-phone-verification');
-        Route::post('/verify-phone', [CustomerAuthController::class, 'verifyPhone'])->name('verify-phone');
+// ========================================
+// 🔐 CUSTOMER AUTHENTICATION (Public)
+// ========================================
+Route::prefix('customer')->name('customer.')->group(function () {
 
-        // Login methods (OTP-based only)
-        Route::post('/login-with-otp', [CustomerAuthController::class, 'loginWithOTP'])->name('login-with-otp');
-        Route::post('/verify-login-otp', [CustomerAuthController::class, 'verifyLoginOTP'])->name('verify-login-otp');
-    });
+    // Registration & OTP
+    Route::post('/register', [CustomerAuthController::class, 'register'])->name('register');
+    Route::post('/verify-otp', [CustomerAuthController::class, 'verifyOTP'])->name('verify-otp');
+    Route::post('/resend-otp', [CustomerAuthController::class, 'resendOTP'])->name('resend-otp');
+
+    // Login & OTP
+    Route::post('/send-login-otp', [PasswordlessLoginController::class, 'sendCustomerLoginOTP'])->name('send-login-otp');
+    Route::post('/verify-login-otp', [PasswordlessLoginController::class, 'verifyCustomerLoginOTP'])->name('verify-login-otp');
 });
 
-// Protected customer routes (authentication required)
-Route::prefix('customer')->middleware(['auth:sanctum'])->group(function () {
+// ========================================
+// 🔒 CUSTOMER PROTECTED ROUTES
+// ========================================
+Route::prefix('customer')->middleware(['auth:sanctum'])->name('customer.')->group(function () {
 
-    // Authentication management
-    Route::prefix('auth')->name('api.customer.auth.')->group(function () {
-        Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
-        Route::get('/profile', [CustomerAuthController::class, 'profile'])->name('profile');
-        Route::put('/profile', [CustomerAuthController::class, 'updateProfile'])->name('update-profile');
-        Route::post('/profile', [CustomerAuthController::class, 'updateProfile'])->name('update-profile-post'); // Support for form-data uploads
+    // ========================================
+    // 👤 PROFILE MANAGEMENT
+    // ========================================
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [CustomerController::class, 'profile'])->name('show');
+        Route::put('/', [CustomerController::class, 'updateProfile'])->name('update');
+        Route::post('/', [CustomerController::class, 'updateProfile'])->name('update-post'); // Support for form-data uploads
 
-        Route::delete('/delete-account', [CustomerAuthController::class, 'deleteAccount'])->name('delete-account');
-    });
+        // Avatar management
+        Route::post('/avatar', [CustomerController::class, 'updateAvatar'])->name('update-avatar');
+        Route::delete('/avatar', [CustomerController::class, 'deleteAvatar'])->name('delete-avatar');
 
-    // Customer profile and analytics
-    Route::prefix('profile')->name('api.customer.profile.')->group(function () {
+        // Address management
+        Route::get('/addresses', [CustomerController::class, 'getAddresses'])->name('addresses');
+        Route::post('/addresses', [CustomerController::class, 'addAddress'])->name('add-address');
+        Route::put('/addresses/{id}', [CustomerController::class, 'updateAddress'])->name('update-address');
+        Route::delete('/addresses/{id}', [CustomerController::class, 'deleteAddress'])->name('delete-address');
+        Route::put('/addresses/{id}/default', [CustomerController::class, 'setDefaultAddress'])->name('set-default-address');
+
+        // Notification settings
+        Route::put('/notification-settings', [CustomerController::class, 'updateNotificationSettings'])->name('notification-settings');
+
+        // Dashboard and analytics
         Route::get('/dashboard', [CustomerController::class, 'dashboard'])->name('dashboard');
-        Route::get('/overview', [CustomerController::class, 'overview'])->name('overview');
         Route::get('/statistics', [CustomerController::class, 'statistics'])->name('statistics');
-        Route::get('/spending-analytics', [CustomerController::class, 'spendingAnalytics'])->name('spending-analytics');
-        Route::get('/order-patterns', [CustomerController::class, 'orderPatterns'])->name('order-patterns');
-        Route::get('/loyalty-status', [CustomerController::class, 'loyaltyStatus'])->name('loyalty-status');
-        Route::post('/update-loyalty-points', [CustomerController::class, 'updateLoyaltyPoints'])->name('update-loyalty-points');
+        Route::get('/order-history', [CustomerController::class, 'orderHistory'])->name('order-history');
     });
 
-    // Customer app functionality
-    Route::prefix('app')->name('api.customer.app.')->group(function () {
-        // Home Screen (Mobile API)
-        Route::get('/home', [MobileApiController::class, 'homeScreen'])->name('home');
+    // ========================================
+    // 🛒 SHOPPING & ORDERS
+    // ========================================
+    Route::prefix('shopping')->name('shopping.')->group(function () {
+        // Browse products and restaurants
+        Route::get('/restaurants', [CustomerController::class, 'getRestaurants'])->name('restaurants');
+        Route::get('/restaurants/{id}', [CustomerController::class, 'getRestaurant'])->name('restaurant-details');
+        Route::get('/products', [CustomerController::class, 'getProducts'])->name('products');
+        Route::get('/products/{id}', [CustomerController::class, 'getProduct'])->name('product-details');
 
-        // Browse and search (Mobile API)
-        Route::get('/restaurants', [MobileApiController::class, 'merchants'])->name('browse-restaurants');
+        // Products (matching mobile app structure)
+        Route::get('/products', [CustomerController::class, 'getProducts'])->name('products'); // All products with filtering
+        Route::get('/products/{id}', [CustomerController::class, 'getProduct'])->name('product-details'); // Product details
+        Route::get('/search', [CustomerController::class, 'search'])->name('search'); // Search products
 
-        // Advanced Search System (New)
-        Route::get('/search', [\App\Http\Controllers\Api\SearchController::class, 'search'])->name('search');
-        Route::get('/search/autocomplete', [\App\Http\Controllers\Api\SearchController::class, 'autocomplete'])->name('search-autocomplete');
-        Route::get('/search/suggestions', [\App\Http\Controllers\Api\SearchController::class, 'suggestions'])->name('search-suggestions');
-        Route::get('/search/history', [\App\Http\Controllers\Api\SearchController::class, 'history'])->name('search-history');
-        Route::delete('/search/history/{id}', [\App\Http\Controllers\Api\SearchController::class, 'deleteHistoryItem'])->name('delete-search-history-item');
-        Route::delete('/search/history', [\App\Http\Controllers\Api\SearchController::class, 'clearHistory'])->name('clear-search-history');
-        Route::post('/search/record-click', [\App\Http\Controllers\Api\SearchController::class, 'recordClick'])->name('record-search-click');
+        // Categories (simplified - one route for all)
+        Route::get('/categories', [CustomerController::class, 'getCategories'])->name('categories'); // All categories - use everywhere
+        Route::get('/categories/{id}/products', [CustomerController::class, 'getCategoryProducts'])->name('category-products');
 
-        Route::get('/categories', [MobileApiController::class, 'foodNationalities'])->name('categories');
-        Route::get('/restaurants/{id}', [MobileApiController::class, 'merchantDetails'])->name('restaurant-details');
+        // Cart management
+        Route::get('/cart', [CustomerController::class, 'getCart'])->name('cart');
+        Route::post('/cart/add', [CustomerController::class, 'addToCart'])->name('add-to-cart');
+        Route::put('/cart/{id}', [CustomerController::class, 'updateCartItem'])->name('update-cart-item');
+        Route::delete('/cart/{id}', [CustomerController::class, 'removeFromCart'])->name('remove-from-cart');
+        Route::delete('/cart', [CustomerController::class, 'clearCart'])->name('clear-cart');
 
-        // Additional mobile endpoints
-        Route::get('/merchants', [MobileApiController::class, 'merchants'])->name('merchants');
-        Route::get('/merchants/{id}', [MobileApiController::class, 'merchantDetails'])->name('merchant-details');
-        Route::get('/merchants/{id}/products', [MobileApiController::class, 'merchantProducts'])->name('merchant-products');
-        Route::get('/merchants/{id}/categories', [MobileApiController::class, 'merchantCategories'])->name('merchant-categories');
+        // Checkout and orders
+        Route::post('/checkout', [CustomerController::class, 'checkout'])->name('checkout');
+        Route::get('/orders', [CustomerController::class, 'getOrders'])->name('orders');
+        Route::get('/orders/{id}', [CustomerController::class, 'getOrder'])->name('order-details');
+        Route::post('/orders/{id}/cancel', [CustomerController::class, 'cancelOrder'])->name('cancel-order');
+        Route::post('/orders/{id}/review', [CustomerController::class, 'reviewOrder'])->name('review-order');
 
-        // Product Management Routes (New)
-        Route::get('/products', [MobileApiController::class, 'allProducts'])->name('products');
-
-        // Legacy product routes (maintained for backward compatibility)
-        Route::get('/products/featured', [MobileApiController::class, 'featuredProducts'])->name('featured-products');
-        Route::get('/products/popular', [MobileApiController::class, 'popularProducts'])->name('popular-products');
-
-        // Product details route (must be after specific routes)
-        Route::get('/products/{id}', [MobileApiController::class, 'singleProduct'])->name('product-details');
-        // Route::get('/products/search', [MobileApiController::class, 'searchProducts'])->name('search-products'); // DEPRECATED: Use Advanced Search System instead
-
-        // Orders (Mobile API)
-        Route::get('/orders', [MobileApiController::class, 'orderHistory'])->name('orders');
-        Route::post('/orders/create', [MobileApiController::class, 'createOrder'])->name('place-order');
-        Route::get('/orders/{id}', [MobileApiController::class, 'getOrder'])->name('order-details');
-        Route::get('/orders/{id}/track', [MobileApiController::class, 'trackOrder'])->name('track-order');
-        Route::post('/orders/{id}/cancel', [MobileApiController::class, 'cancelOrder'])->name('cancel-order');
-
-        // Favorites (Mobile API)
-        Route::get('/favorites', [MobileApiController::class, 'favoriteMerchants'])->name('favorites');
-        Route::post('/favorites/{merchantId}', [MobileApiController::class, 'addFavoriteMerchant'])->name('add-to-favorites');
-        Route::delete('/favorites/{merchantId}', [MobileApiController::class, 'removeFavoriteMerchant'])->name('remove-from-favorites');
-
-        // Addresses (Mobile API)
-        Route::get('/addresses', [MobileApiController::class, 'getAddresses'])->name('addresses');
-        Route::post('/addresses', [MobileApiController::class, 'createAddress'])->name('add-address');
-        Route::put('/addresses/{id}', [MobileApiController::class, 'updateAddress'])->name('update-address');
-        Route::delete('/addresses/{id}', [MobileApiController::class, 'deleteAddress'])->name('delete-address');
-        Route::post('/addresses/{id}/set-default', [MobileApiController::class, 'setDefaultAddress'])->name('set-default-address');
-
-        // Cart (Mobile API)
-        Route::get('/cart', [MobileApiController::class, 'getCart'])->name('cart');
-        Route::post('/cart/add', [MobileApiController::class, 'addToCart'])->name('add-to-cart');
-        Route::put('/cart/update/{itemId}', [MobileApiController::class, 'updateCartItem'])->name('update-cart');
-        Route::delete('/cart/remove/{itemId}', [MobileApiController::class, 'removeFromCart'])->name('remove-cart-item');
-        Route::delete('/cart/clear', [MobileApiController::class, 'clearCart'])->name('clear-cart');
-        Route::post('/cart/apply-coupon', [MobileApiController::class, 'applyCoupon'])->name('apply-coupon');
-        Route::delete('/cart/remove-coupon', [MobileApiController::class, 'removeCoupon'])->name('remove-coupon');
-
-        // Reviews (Mobile API)
-        Route::get('/reviews', [MobileApiController::class, 'getReviews'])->name('reviews');
-        Route::post('/reviews/merchants/{merchantId}', [MobileApiController::class, 'reviewMerchant'])->name('review-merchant');
-        Route::post('/reviews/products/{productId}', [MobileApiController::class, 'reviewProduct'])->name('review-product');
-
-        // Notifications (Mobile API)
-        Route::get('/notifications', [MobileApiController::class, 'getNotifications'])->name('notifications');
-        Route::post('/notifications/{id}/read', [MobileApiController::class, 'markNotificationAsRead'])->name('mark-notification-read');
-        Route::post('/notifications/read-all', [MobileApiController::class, 'markAllNotificationsAsRead'])->name('mark-all-notifications-read');
-
-        // Profile (Mobile API)
-        Route::get('/profile', [MobileApiController::class, 'getProfile'])->name('profile');
-        Route::put('/profile/update', [MobileApiController::class, 'updateProfile'])->name('update-profile');
-        Route::post('/profile/upload-avatar', [MobileApiController::class, 'uploadAvatar'])->name('upload-avatar');
-        Route::delete('/profile/delete-avatar', [MobileApiController::class, 'deleteAvatar'])->name('delete-avatar');
+        // Favorites
+        Route::get('/favorites', [CustomerController::class, 'getFavorites'])->name('favorites');
+        Route::post('/favorites/{type}/{id}', [CustomerController::class, 'addToFavorites'])->name('add-to-favorites'); // type: restaurant|product
+        Route::delete('/favorites/{type}/{id}', [CustomerController::class, 'removeFromFavorites'])->name('remove-from-favorites');
     });
+
+    // ========================================
+    // 🔧 SHARED ROUTES (User info, logout)
+    // ========================================
+    Route::get('/me', [CustomerController::class, 'profile'])->name('me');
+    Route::post('/logout', [PasswordlessLoginController::class, 'logout'])->name('logout');
+    Route::delete('/delete-account', [CustomerController::class, 'deleteAccount'])->name('delete-account');
 });
-
-// Admin routes for customer management
-Route::prefix('admin/customers')->name('api.admin.customers.')->middleware(['auth:sanctum', 'user.type:admin'])->group(function () {
-    Route::get('/', [CustomerController::class, 'index'])->name('index');
-    Route::get('/{customer}', [CustomerController::class, 'show'])->name('show');
-    Route::get('/{customer}/analytics', [CustomerController::class, 'adminDashboard'])->name('analytics');
-});
-
-

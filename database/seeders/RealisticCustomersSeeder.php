@@ -20,7 +20,8 @@ class RealisticCustomersSeeder extends Seeder
                     'en' => 'Ahmed Al-Rashid',
                     'ar' => 'أحمد الراشد'
                 ],
-                'phone_number' => '+966501111111',
+                'phone_number' => '501111111',
+                'country_code' => '+966',
                 'email' => 'ahmed.rashid@gmail.com',
                 'preferred_language' => 'ar',
 
@@ -119,7 +120,8 @@ class RealisticCustomersSeeder extends Seeder
                     'en' => 'Sarah Johnson',
                     'ar' => 'سارة جونسون'
                 ],
-                'phone_number' => '+966502222222',
+                'phone_number' => '502222222',
+                'country_code' => '+966',
                 'email' => 'sarah.johnson@outlook.com',
                 'preferred_language' => 'en',
 

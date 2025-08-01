@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Helpers\TranslationHelper;
 
 class CustomerResource extends JsonResource
 {
@@ -18,7 +19,7 @@ class CustomerResource extends JsonResource
             'id' => $this->id,
 
             // Basic Information
-            'name' => $this->getTranslations('name'),
+            'name' => TranslationHelper::formatTranslatableWithUserPreference($this, 'name', $this),
             'phone_number' => $this->phone_number,
             'email' => $this->email,
             'preferred_language' => $this->preferred_language,
@@ -76,4 +77,5 @@ class CustomerResource extends JsonResource
             'last_order_date' => $this->orders()->latest()->first()?->created_at?->format('Y-m-d H:i:s'),
         ];
     }
+
 }

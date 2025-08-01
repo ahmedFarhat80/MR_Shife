@@ -30,7 +30,8 @@ class RealisticMerchantsSeeder extends Seeder
                     'en' => 'Al Salam Restaurant',
                     'ar' => 'مطعم السلام'
                 ],
-                'phone_number' => '+966501234567',
+                'phone_number' => '501234567',
+                'country_code' => '+966',
                 'email' => 'info@alsalam-restaurant.com',
                 'is_phone_verified' => true,
                 'phone_verified_at' => Carbon::now()->subDays(30),
@@ -112,7 +113,8 @@ class RealisticMerchantsSeeder extends Seeder
                     'en' => 'Coffee Corner Cafe',
                     'ar' => 'مقهى ركن القهوة'
                 ],
-                'phone_number' => '+966507654321',
+                'phone_number' => '507654321',
+                'country_code' => '+966',
                 'email' => 'hello@coffeecorner.sa',
                 'is_phone_verified' => true,
                 'phone_verified_at' => Carbon::now()->subDays(20),

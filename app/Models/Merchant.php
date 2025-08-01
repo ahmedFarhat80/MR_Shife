@@ -30,6 +30,7 @@ class Merchant extends Authenticatable
         // Basic Information
         'name',
         'phone_number',
+        'country_code',
         'email',
         'is_phone_verified',
         'phone_verified_at',
@@ -78,6 +79,8 @@ class Merchant extends Authenticatable
         'is_approved',
         'is_featured',
         'preferred_language',
+        'last_login_at',
+        'last_login_ip',
         'approved_at',
         'completed_at',
         'rejection_reason',
@@ -166,13 +169,7 @@ class Merchant extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
-    /**
-     * Get internal categories for this merchant.
-     */
-    public function internalCategories(): HasMany
-    {
-        return $this->hasMany(InternalCategory::class);
-    }
+
 
     /**
      * Check if merchant has completed a specific registration step.

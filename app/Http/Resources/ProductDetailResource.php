@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Helpers\ImageHelper;
+use App\Helpers\TranslationHelper;
 
 class ProductDetailResource extends JsonResource
 {
@@ -19,8 +20,8 @@ class ProductDetailResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'name' => $this->getTranslation('name', $language),
-            'description' => $this->getTranslation('description', $language),
+            'name' => TranslationHelper::formatTranslatable($this, 'name'),
+            'description' => TranslationHelper::formatTranslatable($this, 'description'),
             'product_code' => $this->product_code,
 
             // Images

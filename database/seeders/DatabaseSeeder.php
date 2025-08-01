@@ -39,13 +39,10 @@ class DatabaseSeeder extends Seeder
             // 5. Create internal categories for each merchant
             InternalCategoriesSeeder::class,
 
-            // 6. Create products (using enhanced ProductSeeder only)
-            ProductSeeder::class, // Enhanced seeder with realistic products for each merchant type
+            // 6. Create complete products with options and sizes
+            CompleteProductsSeeder::class, // Complete products with sizes and options in one go
 
-            // 7. Create sample products with options (for testing)
-            SampleProductsSeeder::class, // Products with options and customizations
-
-            // 8. Create orders with realistic data
+            // 7. Create orders with realistic data
             OrderSeeder::class,
         ]);
     }

@@ -188,13 +188,7 @@ class MerchantProfileController extends Controller
             }
         }
 
-        // Handle social_media JSON string
-        if (isset($data['social_media']) && is_string($data['social_media'])) {
-            $socialMedia = json_decode($data['social_media'], true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $data['social_media'] = $socialMedia;
-            }
-        }
+
 
         $validator = Validator::make($data, [
             'business_logo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
@@ -203,10 +197,6 @@ class MerchantProfileController extends Controller
             'business_hours' => 'nullable|array',
             'business_phone' => 'nullable|string|max:20',
             'business_email' => 'nullable|email',
-            'social_media' => 'nullable|array',
-            'social_media.facebook' => 'nullable|url',
-            'social_media.instagram' => 'nullable|url',
-            'social_media.twitter' => 'nullable|url',
         ]);
 
         if ($validator->fails()) {
@@ -244,7 +234,7 @@ class MerchantProfileController extends Controller
             }
 
             // Handle other fields
-            $fields = ['business_hours', 'business_phone', 'business_email', 'social_media'];
+            $fields = ['business_hours', 'business_phone', 'business_email'];
             foreach ($fields as $field) {
                 if (isset($data[$field])) {
                     $updateData[$field] = $data[$field];

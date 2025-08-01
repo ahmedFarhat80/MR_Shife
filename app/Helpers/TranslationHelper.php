@@ -15,14 +15,14 @@ class TranslationHelper
     public static function trans(string $key, array $replace = [], ?string $locale = null): string
     {
         $locale = $locale ?? app()->getLocale();
-        
+
         $translation = __($key, $replace, $locale);
-        
+
         // If translation is the same as key, try default language
         if ($translation === $key && $locale !== config('app.fallback_locale')) {
             $translation = __($key, $replace, config('app.fallback_locale'));
         }
-        
+
         return $translation;
     }
 
@@ -83,7 +83,7 @@ class TranslationHelper
     {
         $attributeTranslation = self::trans("attributes.{$attribute}");
         $replace['attribute'] = $attributeTranslation;
-        
+
         return self::trans("validation.{$rule}", $replace);
     }
 
@@ -216,7 +216,7 @@ class TranslationHelper
     {
         $locale = $locale ?? app()->getLocale();
         $translation = __($key, [], $locale);
-        
+
         return $translation !== $key;
     }
 
@@ -230,13 +230,72 @@ class TranslationHelper
     public static function getMissingKeys(array $keys, ?string $locale = null): array
     {
         $missing = [];
-        
+
         foreach ($keys as $key) {
             if (!self::exists($key, $locale)) {
                 $missing[] = $key;
             }
         }
-        
+
         return $missing;
     }
-} 
+
+    /**
+     * Format translatable field for API response.
+     * Returns all translations plus current translation based on app locale.
+     *
+     * @param \Illuminate\Database\Eloquent\Model $model
+     * @param string $field
+     * @param string|null $currentLocale
+     * @return array
+     */
+    public static function formatTranslatable($model, string $field, ?string $currentLocale = null): array
+    {
+        // Get current locale (default to app locale)
+        $currentLocale = $currentLocale ?? app()->getLocale();
+
+        // Get all translations for the field
+        $translations = $model->getTranslations($field);
+
+        // Ensure we have at least empty strings for en and ar
+        $result = [
+            'en' => $translations['en'] ?? '',
+            'ar' => $translations['ar'] ?? '',
+        ];
+
+        // Add current translation based on locale
+        // Priority: requested locale -> en -> ar -> first available
+        $current = $translations[$currentLocale] ??
+                  $translations['en'] ??
+                  $translations['ar'] ??
+                  collect($translations)->first() ?? '';
+
+        $result['current'] = $current;
+
+        return $result;
+    }
+
+    /**
+     * Format translatable field with user preference.
+     * Uses user's preferred language if available.
+     *
+     * @param \Illuminate\Database\Eloquent\Model $model
+     * @param string $field
+     * @param \Illuminate\Database\Eloquent\Model|null $user
+     * @return array
+     */
+    public static function formatTranslatableWithUserPreference($model, string $field, $user = null): array
+    {
+        $preferredLocale = null;
+
+        // Get user's preferred language if user is provided
+        if ($user && isset($user->preferred_language)) {
+            $preferredLocale = $user->preferred_language;
+        }
+
+        // Fallback to app locale
+        $preferredLocale = $preferredLocale ?? app()->getLocale();
+
+        return self::formatTranslatable($model, $field, $preferredLocale);
+    }
+}

@@ -6,7 +6,7 @@ use App\Models\VerificationCode;
 use App\Models\Customer;
 use App\Models\Merchant;
 use App\Models\RegistrationSession;
-use Illuminate\Support\Str;
+
 
 class OTPService
 {
@@ -24,7 +24,7 @@ class OTPService
         if ($purpose === 'login') {
             return $this->sendLoginOTP($phoneNumber, $userType);
         }
-        
+
         return $this->sendRegistrationOTP($phoneNumber, $userType, $skipRegistrationCheck);
     }
 
@@ -45,7 +45,7 @@ class OTPService
                 if ($isRegistered) {
                     return [
                         'success' => false,
-                        'message' => 'Phone number is already registered.'
+                        'message' => __('auth.phone_already_registered')
                     ];
                 }
             }
@@ -58,7 +58,7 @@ class OTPService
 
             return [
                 'success' => true,
-                'message' => 'OTP sent successfully.',
+                'message' => __('otp.sent_successfully'),
                 'data' => [
                     'verification_code' => $verificationCode->code, // Remove in production
                     'expires_at' => $verificationCode->expires_at
@@ -67,7 +67,7 @@ class OTPService
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Failed to send OTP: ' . $e->getMessage()
+                'message' => __('otp.failed_to_send') . ': ' . $e->getMessage()
             ];
         }
     }
@@ -83,23 +83,32 @@ class OTPService
     {
         try {
             // Check if phone number is registered
-            $user = $this->findUserByPhone($phoneNumber, $userType);
+            $defaultCountryCode = '+966';
+            if ($userType === 'merchant') {
+                $user = Merchant::where('phone_number', $phoneNumber)
+                    ->where('country_code', $defaultCountryCode)
+                    ->first();
+            } else {
+                $user = Customer::where('phone_number', $phoneNumber)
+                    ->where('country_code', $defaultCountryCode)
+                    ->first();
+            }
             if (!$user) {
                 return [
                     'success' => false,
-                    'message' => 'Phone number is not registered.'
+                    'message' => __('auth.phone_not_registered')
                 ];
             }
 
-            // Generate and send OTP for login
+            // Generate and send OTP for login (using phone number only)
             $verificationCode = VerificationCode::generateCode($phoneNumber, $userType, null, 'login');
 
             // In production, send SMS here
-            // $this->sendSMS($phoneNumber, $verificationCode->code);
+            // $this->sendSMS($normalizedPhone, $verificationCode->code);
 
             return [
                 'success' => true,
-                'message' => 'OTP sent successfully.',
+                'message' => __('otp.sent_successfully'),
                 'data' => [
                     'verification_code' => $verificationCode->code, // Remove in production
                     'expires_at' => $verificationCode->expires_at
@@ -108,7 +117,7 @@ class OTPService
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Failed to send OTP: ' . $e->getMessage()
+                'message' => __('otp.failed_to_send') . ': ' . $e->getMessage()
             ];
         }
     }
@@ -129,7 +138,7 @@ class OTPService
             if (!$registrationSession) {
                 return [
                     'success' => false,
-                    'message' => 'Invalid registration session.'
+                    'message' => __('otp.no_pending_registration')
                 ];
             }
 
@@ -142,14 +151,14 @@ class OTPService
             if (!$verificationCode) {
                 return [
                     'success' => false,
-                    'message' => 'Invalid verification code.'
+                    'message' => __('otp.invalid_code')
                 ];
             }
 
             if ($verificationCode->isExpired()) {
                 return [
                     'success' => false,
-                    'message' => 'Verification code has expired.'
+                    'message' => __('otp.expired_code')
                 ];
             }
 
@@ -172,7 +181,7 @@ class OTPService
 
             return [
                 'success' => true,
-                'message' => 'Registration completed successfully. You are now logged in.',
+                'message' => __('registration.completed'),
                 'data' => [
                     'user' => $user,
                     'token' => $token,
@@ -182,7 +191,7 @@ class OTPService
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Failed to verify OTP: ' . $e->getMessage()
+                'message' => __('otp.failed_to_verify') . ': ' . $e->getMessage()
             ];
         }
     }
@@ -207,23 +216,33 @@ class OTPService
             if (!$verificationCode) {
                 return [
                     'success' => false,
-                    'message' => 'Invalid verification code.'
+                    'message' => __('otp.invalid_code')
                 ];
             }
 
             if ($verificationCode->isExpired()) {
                 return [
                     'success' => false,
-                    'message' => 'Verification code has expired.'
+                    'message' => __('otp.expired_code')
                 ];
             }
 
-            // Find user
-            $user = $this->findUserByPhone($phoneNumber, $userType);
+            // Find user directly
+            $defaultCountryCode = '+966';
+            if ($userType === 'merchant') {
+                $user = Merchant::where('phone_number', $phoneNumber)
+                    ->where('country_code', $defaultCountryCode)
+                    ->first();
+            } else {
+                $user = Customer::where('phone_number', $phoneNumber)
+                    ->where('country_code', $defaultCountryCode)
+                    ->first();
+            }
+
             if (!$user) {
                 return [
                     'success' => false,
-                    'message' => 'User not found.'
+                    'message' => 'User not found'
                 ];
             }
 
@@ -237,13 +256,16 @@ class OTPService
             $token = $user->createToken($tokenName)->plainTextToken;
 
             // Update last login
-            $user->update(['last_login_at' => now()]);
+            $user->update([
+                'last_login_at' => now(),
+                'last_login_ip' => request()->ip()
+            ]);
 
             return [
                 'success' => true,
-                'message' => 'Login successful.',
+                'message' => 'Login successful',
                 'data' => [
-                    'user' => $user,
+                    'user' => $user, // Return the actual model object
                     'token' => $token,
                     'user_type' => $userType
                 ]
@@ -251,7 +273,7 @@ class OTPService
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Failed to verify OTP: ' . $e->getMessage()
+                'message' => __('otp.failed_to_verify') . ': ' . $e->getMessage()
             ];
         }
     }
@@ -272,20 +294,43 @@ class OTPService
         }
     }
 
+
+
+
+
     /**
-     * Find user by phone number.
+     * Parse phone number to separate country code and number.
      *
      * @param string $phoneNumber
-     * @param string $userType
-     * @return Customer|Merchant|null
+     * @return array
      */
-    private function findUserByPhone(string $phoneNumber, string $userType)
+    private function parsePhoneNumber(string $phoneNumber): array
     {
-        if ($userType === 'merchant') {
-            return Merchant::where('phone_number', $phoneNumber)->first();
+        // Normalize the phone number first
+        $normalizedPhone = $this->normalizePhoneNumber($phoneNumber);
+
+        // Default values
+        $countryCode = '+966';
+        $number = '';
+
+        // Remove the + sign for processing
+        $cleanPhone = ltrim($normalizedPhone, '+');
+
+        if (str_starts_with($cleanPhone, '966')) {
+            // Phone number with Saudi country code
+            $countryCode = '+966';
+            $number = substr($cleanPhone, 3); // Remove 966
         } else {
-            return Customer::where('phone_number', $phoneNumber)->first();
+            // Assume it's a local number without country code
+            $countryCode = '+966';
+            $number = $cleanPhone;
         }
+
+        return [
+            'country_code' => $countryCode,
+            'number' => $number,
+            'full_number' => $normalizedPhone
+        ];
     }
 
     /**
@@ -363,5 +408,43 @@ class OTPService
 
             return Customer::create($customerData);
         }
+    }
+
+    /**
+     * Normalize phone number to international format (+966)
+     *
+     * @param string $phoneNumber
+     * @return string
+     */
+    private function normalizePhoneNumber(string $phoneNumber): string
+    {
+        // Remove all non-numeric characters except +
+        $phoneNumber = preg_replace('/[^0-9+]/', '', $phoneNumber);
+
+        // If already starts with +966, return as is
+        if (str_starts_with($phoneNumber, '+966')) {
+            return $phoneNumber;
+        }
+
+        // Remove + sign for processing
+        $cleanPhone = ltrim($phoneNumber, '+');
+
+        // Handle different formats and convert to +966 format
+        if (strlen($cleanPhone) == 13 && str_starts_with($cleanPhone, '966')) {
+            // 966501234567 -> +966501234567
+            return '+' . $cleanPhone;
+        } elseif (strlen($cleanPhone) == 10 && str_starts_with($cleanPhone, '0')) {
+            // 0501234567 -> +966501234567
+            return '+966' . substr($cleanPhone, 1);
+        } elseif (strlen($cleanPhone) == 9) {
+            // 501234567 -> +966501234567
+            return '+966' . $cleanPhone;
+        } elseif (strlen($cleanPhone) == 12 && str_starts_with($cleanPhone, '966')) {
+            // 966501234567 (12 digits) -> +966501234567
+            return '+' . $cleanPhone;
+        }
+
+        // If none of the above, assume it's a local number and add +966
+        return '+966' . $cleanPhone;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\OTPHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -58,13 +59,11 @@ class VerificationCode extends Model
             ->where('type', $type)
             ->delete();
 
-        // Generate a random 6-digit code
-        $code = str_pad(random_int(1, 999999), 6, '0', STR_PAD_LEFT);
+        // Generate OTP code using the shared helper
+        $code = OTPHelper::generateByType($type, $purpose);
 
-        // Determine expiry time based on purpose
-        $expiryMinutes = $purpose === 'login'
-            ? config('otp.login_expiry_minutes', 1)
-            : config('otp.expiry_minutes', 1);
+        // Get expiry time using the helper
+        $expiryMinutes = OTPHelper::getExpiryMinutes($type, $purpose);
 
         // Create and return a new verification code
         return self::create([

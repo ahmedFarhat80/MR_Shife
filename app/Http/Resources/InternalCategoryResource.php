@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Helpers\ImageHelper;
+use App\Helpers\TranslationHelper;
 
 class InternalCategoryResource extends JsonResource
 {
@@ -19,8 +20,8 @@ class InternalCategoryResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'name' => $this->getTranslation('name', $language),
-            'description' => $this->getTranslation('description', $language),
+            'name' => TranslationHelper::formatTranslatable($this, 'name'),
+            'description' => TranslationHelper::formatTranslatable($this, 'description'),
             'icon' => $this->icon,
             'image' => $this->getImageUrl(),
             'color' => $this->color ?? $this->getRandomColor(),

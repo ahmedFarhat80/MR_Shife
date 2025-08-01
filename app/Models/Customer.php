@@ -29,6 +29,7 @@ class Customer extends Authenticatable
     protected $fillable = [
         'name',
         'phone_number',
+        'country_code',
         'email',
         'preferred_language',
         'phone_verified',
@@ -235,14 +236,21 @@ class Customer extends Authenticatable
      */
     public function getAvatarUrlAttribute(): string
     {
+        // If avatar exists, return full URL
         if ($this->avatar) {
-            // Use ImageHelper to get the correct URL
-            return \App\Helpers\ImageHelper::getUrl($this->avatar, 'public');
+            // Check if file exists
+            $fullPath = storage_path('app/public/' . $this->avatar);
+            if (file_exists($fullPath)) {
+                return config('app.url') . '/storage/' . str_replace('\\', '/', $this->avatar);
+            }
         }
 
-        // Generate avatar based on name initials
-        $name = $this->getTranslation('name', 'en') ?? $this->getTranslation('name', 'ar') ?? 'Customer';
-        $initials = collect(explode(' ', $name))->map(fn($word) => strtoupper(substr($word, 0, 1)))->take(2)->join('');
+        // Generate default avatar with initials
+        $name = $this->getTranslation('name', 'en') ?: $this->getTranslation('name', 'ar') ?: 'Customer';
+        $initials = collect(explode(' ', $name))
+            ->map(fn($word) => strtoupper(substr($word, 0, 1)))
+            ->take(2)
+            ->join('') ?: 'C';
 
         return "https://ui-avatars.com/api/?name={$initials}&background=random&color=fff&size=200";
     }

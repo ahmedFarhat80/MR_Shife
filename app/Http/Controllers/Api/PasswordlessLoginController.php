@@ -31,14 +31,19 @@ class PasswordlessLoginController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'phone_number' => 'required|string',
+            'country_code' => 'nullable|string|regex:/^\+[0-9]{1,4}$/',
         ]);
 
         if ($validator->fails()) {
             return $this->apiResponse->validationError($validator->errors());
         }
 
-        // Send OTP for merchant
-        $result = $this->otpService->sendLoginOTP($request->phone_number, 'merchant');
+        // Get country code (default to +966 for Saudi Arabia)
+        $countryCode = $request->country_code ?? '+966';
+        $phoneNumber = $request->phone_number;
+
+        // Send OTP for merchant (using phone number only)
+        $result = $this->otpService->sendLoginOTP($phoneNumber, 'merchant');
 
         if (!$result['success']) {
             return $this->apiResponse->error($result['message']);
@@ -63,14 +68,19 @@ class PasswordlessLoginController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'phone_number' => 'required|string',
+            'country_code' => 'nullable|string|regex:/^\+[0-9]{1,4}$/',
         ]);
 
         if ($validator->fails()) {
             return $this->apiResponse->validationError($validator->errors());
         }
 
-        // Send OTP for customer
-        $result = $this->otpService->sendLoginOTP($request->phone_number, 'customer');
+        // Get country code (default to +966 for Saudi Arabia)
+        $countryCode = $request->country_code ?? '+966';
+        $phoneNumber = $request->phone_number;
+
+        // Send OTP for customer (using phone number only)
+        $result = $this->otpService->sendLoginOTP($phoneNumber, 'customer');
 
         if (!$result['success']) {
             return $this->apiResponse->error($result['message']);
@@ -131,17 +141,35 @@ class PasswordlessLoginController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'phone_number' => 'required|string',
-            'code' => 'required|string|size:6|regex:/^[0-9]{6}$/',
+            'country_code' => 'nullable|string|regex:/^\+[0-9]{1,4}$/',
+            'otp' => 'nullable|string|regex:/^[0-9]{4,6}$/',
+            'code' => 'nullable|string|regex:/^[0-9]{4,6}$/',
         ]);
+
+        // Check for OTP code (accept both 'code' and 'otp' fields)
+        $otpCode = $request->code ?? $request->otp;
+        if (!$otpCode) {
+            $validator->after(function ($validator) {
+                $validator->errors()->add('code', __('validation.required', ['attribute' => 'code']));
+            });
+        } elseif (!preg_match('/^[0-9]{4,6}$/', $otpCode)) {
+            $validator->after(function ($validator) {
+                $validator->errors()->add('code', __('validation.regex', ['attribute' => 'code']));
+            });
+        }
 
         if ($validator->fails()) {
             return $this->apiResponse->validationError($validator->errors());
         }
 
-        // Verify OTP and login for merchant
+        // Get country code (default to +966 for Saudi Arabia)
+        $countryCode = $request->country_code ?? '+966';
+        $phoneNumber = $request->phone_number;
+
+        // Verify OTP and login for merchant (using phone number only)
         $result = $this->otpService->verifyLoginOTP(
-            $request->phone_number,
-            $request->code,
+            $phoneNumber,
+            $otpCode,
             'merchant'
         );
 
@@ -175,17 +203,35 @@ class PasswordlessLoginController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'phone_number' => 'required|string',
-            'code' => 'required|string|size:6|regex:/^[0-9]{6}$/',
+            'country_code' => 'nullable|string|regex:/^\+[0-9]{1,4}$/',
+            'otp' => 'nullable|string|regex:/^[0-9]{4,6}$/',
+            'code' => 'nullable|string|regex:/^[0-9]{4,6}$/',
         ]);
+
+        // Check for OTP code (accept both 'code' and 'otp' fields)
+        $otpCode = $request->code ?? $request->otp;
+        if (!$otpCode) {
+            $validator->after(function ($validator) {
+                $validator->errors()->add('code', __('validation.required', ['attribute' => 'code']));
+            });
+        } elseif (!preg_match('/^[0-9]{4,6}$/', $otpCode)) {
+            $validator->after(function ($validator) {
+                $validator->errors()->add('code', __('validation.regex', ['attribute' => 'code']));
+            });
+        }
 
         if ($validator->fails()) {
             return $this->apiResponse->validationError($validator->errors());
         }
 
-        // Verify OTP and login for customer
+        // Get country code (default to +966 for Saudi Arabia)
+        $countryCode = $request->country_code ?? '+966';
+        $phoneNumber = $request->phone_number;
+
+        // Verify OTP and login for customer (using phone number only)
         $result = $this->otpService->verifyLoginOTP(
-            $request->phone_number,
-            $request->code,
+            $phoneNumber,
+            $otpCode,
             'customer'
         );
 
@@ -219,9 +265,21 @@ class PasswordlessLoginController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'phone_number' => 'required|string',
-            'code' => 'required|string|size:6|regex:/^[0-9]{6}$/',
             'user_type' => 'required|string|in:customer,merchant',
+            'country_code' => 'nullable|string|regex:/^\+[0-9]{1,4}$/',
         ]);
+
+        // Check for OTP code (accept both 'code' and 'otp' fields)
+        $otpCode = $request->code ?? $request->otp;
+        if (!$otpCode) {
+            $validator->after(function ($validator) {
+                $validator->errors()->add('code', __('validation.required', ['attribute' => 'code']));
+            });
+        } elseif (!preg_match('/^[0-9]{4,6}$/', $otpCode)) {
+            $validator->after(function ($validator) {
+                $validator->errors()->add('code', __('validation.regex', ['attribute' => 'code']));
+            });
+        }
 
         if ($validator->fails()) {
             return $this->apiResponse->validationError($validator->errors());
@@ -230,10 +288,14 @@ class PasswordlessLoginController extends Controller
         // Get user type
         $userType = $request->user_type;
 
+        // Get country code (default to +966 for Saudi Arabia)
+        $countryCode = $request->country_code ?? '+966';
+        $fullPhoneNumber = $countryCode . $request->phone_number;
+
         // Verify OTP and login
         $result = $this->otpService->verifyLoginOTP(
-            $request->phone_number,
-            $request->code,
+            $fullPhoneNumber,
+            $otpCode,
             $userType
         );
 
